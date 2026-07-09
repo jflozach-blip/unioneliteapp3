@@ -85,16 +85,79 @@
         box-shadow: 0 0 18px rgba(37, 99, 235, .20);
       }
 
-      .day-entry-title strong {
-        color: #dbeafe;
-        font-size: .9rem;
-        font-weight: 1000;
-        text-transform: uppercase;
-        letter-spacing: .08em;
-        text-shadow: 0 0 12px rgba(96, 165, 250, .58);
+      #dayModalBackdrop .day-entry-hero {
+        display: grid !important;
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+        gap: 12px !important;
+        padding: 16px !important;
+        background:
+          radial-gradient(circle at 50% -18%, rgba(250, 204, 21, .22), transparent 34%),
+          radial-gradient(circle at 50% 18%, rgba(96, 165, 250, .22), transparent 44%),
+          linear-gradient(180deg, rgba(15, 23, 42, .94), rgba(2, 6, 23, .74)) !important;
+        border-color: rgba(253, 230, 138, .30) !important;
       }
 
-      .day-entry-title span,
+      .day-entry-title {
+        display: grid;
+        gap: 5px;
+        justify-items: center;
+      }
+
+      .day-entry-title strong {
+        color: #f8fafc;
+        font-size: clamp(1.18rem, 5vw, 1.65rem);
+        line-height: 1;
+        font-weight: 1000;
+        text-transform: uppercase;
+        letter-spacing: .045em;
+        text-shadow:
+          0 0 16px rgba(96, 165, 250, .82),
+          0 0 34px rgba(37, 99, 235, .42);
+      }
+
+      .day-entry-title span {
+        color: #93c5fd;
+        font-size: .78rem;
+        font-weight: 1000;
+        text-transform: uppercase;
+        letter-spacing: .10em;
+      }
+
+      .modal-date-chip {
+        width: 100%;
+        max-width: 420px;
+        min-height: 58px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 12px 16px;
+        border-radius: 20px;
+        color: #fff7ed;
+        background:
+          radial-gradient(circle at 50% 0%, rgba(253, 224, 71, .34), transparent 48%),
+          linear-gradient(135deg, rgba(251, 146, 60, .46), rgba(37, 99, 235, .28), rgba(2, 6, 23, .76));
+        border: 1px solid rgba(253, 230, 138, .58);
+        font-size: clamp(1.05rem, 5vw, 1.45rem);
+        font-weight: 1000;
+        letter-spacing: -.02em;
+        text-shadow:
+          0 0 14px rgba(250, 204, 21, .56),
+          0 0 26px rgba(96, 165, 250, .38);
+        box-shadow:
+          0 0 22px rgba(250, 204, 21, .18),
+          0 0 34px rgba(37, 99, 235, .18),
+          inset 0 1px 0 rgba(255, 255, 255, .16);
+      }
+
+      .modal-date-chip::before {
+        content: '📅';
+        font-size: 1.05em;
+        filter: drop-shadow(0 0 8px rgba(250, 204, 21, .48));
+      }
+
       #modalDutyInfo,
       #modalDutyPay,
       .adjust-preview,
@@ -102,17 +165,6 @@
       #dayModalBackdrop label {
         color: #bfdbfe;
         font-weight: 900;
-      }
-
-      .modal-date-chip {
-        width: max-content;
-        padding: 7px 11px;
-        border-radius: 999px;
-        color: #fde68a;
-        background: rgba(250, 204, 21, .12);
-        border: 1px solid rgba(253, 230, 138, .34);
-        font-weight: 1000;
-        font-size: .75rem;
       }
 
       #modalDayTotal {
@@ -273,6 +325,11 @@
           border-right: 0 !important;
           border-bottom: 0 !important;
           padding-bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+        }
+
+        .modal-date-chip {
+          min-height: 54px;
+          font-size: 1.12rem;
         }
       }
     `;
