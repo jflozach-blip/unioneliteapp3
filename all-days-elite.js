@@ -6,6 +6,7 @@
 
   let suppressNextQuickTileClickUntil = 0;
   let reopenFullWeekModalAfterSave = false;
+  let autoOvertimeSyncing = false;
 
   function addStyle() {
     if (document.getElementById('allDaysEliteStyles')) return;
@@ -14,6 +15,7 @@
     style.id = 'allDaysEliteStyles';
     style.textContent = `
       #allDaysQuickMini .all-days-mini-day {
+        position: relative;
         cursor: pointer;
         user-select: none;
         -webkit-user-select: none;
@@ -28,6 +30,35 @@
         border-color: rgba(191, 219, 254, .58) !important;
         box-shadow: 0 0 18px rgba(37, 99, 235, .26);
         outline: none;
+      }
+
+      #allDaysQuickMini .all-days-mini-day.overtime-day:not(.sick-day):not(.annual-leave) {
+        border-color: rgba(251, 146, 60, .76) !important;
+        background:
+          radial-gradient(circle at 50% 0%, rgba(251, 146, 60, .26), transparent 54%),
+          linear-gradient(180deg, rgba(154, 52, 18, .42), rgba(2, 6, 23, .84)) !important;
+        box-shadow:
+          0 0 16px rgba(251, 146, 60, .34),
+          0 0 30px rgba(250, 204, 21, .12),
+          inset 0 1px 0 rgba(255, 255, 255, .10) !important;
+      }
+
+      #allDaysQuickMini .quick-ot-symbol {
+        position: absolute;
+        top: 4px;
+        right: 5px;
+        font-size: .82rem;
+        line-height: 1;
+        filter: drop-shadow(0 0 7px rgba(251, 146, 60, .75));
+        pointer-events: none;
+      }
+
+      #grid .tile.overtime .day-name::after,
+      #allDaysQuickModalGrid .tile.overtime .day-name::after {
+        content: ' 🔥';
+        color: #fb923c;
+        font-size: .95em;
+        filter: drop-shadow(0 0 8px rgba(251, 146, 60, .72));
       }
 
       #allDaysQuickMini .all-days-mini-day.manual-time {
@@ -77,6 +108,20 @@
         content: ' 🌅';
       }
 
+      #otMinutesInput.auto-adjusted {
+        border-color: rgba(251, 146, 60, .62) !important;
+        box-shadow:
+          0 0 18px rgba(251, 146, 60, .24),
+          inset 0 1px 0 rgba(255, 255, 255, .08) !important;
+      }
+
+      .auto-ot-note {
+        display: block;
+        margin-top: 6px;
+        color: #fed7aa;
+        font-weight: 1000;
+      }
+
       #allDaysQuickModalBackdrop {
         background:
           radial-gradient(circle at 50% 10%, rgba(96, 165, 250, .24), transparent 34%),
@@ -86,137 +131,12 @@
         -webkit-backdrop-filter: blur(14px);
       }
 
-      #allDaysQuickModalBackdrop .all-days-modal {
-        position: relative;
-        overflow: auto;
-        border-radius: 30px !important;
-        padding: 18px !important;
-        background:
-          radial-gradient(circle at 12% 0%, rgba(96, 165, 250, .32), transparent 36%),
-          radial-gradient(circle at 90% 10%, rgba(250, 204, 21, .14), transparent 34%),
-          linear-gradient(180deg, rgba(7, 16, 31, .98), rgba(2, 6, 23, .96)) !important;
-        border: 1px solid rgba(191, 219, 254, .42) !important;
+      #allDaysQuickModalGrid .tile.overtime {
+        border-color: rgba(251, 146, 60, .72) !important;
         box-shadow:
-          0 0 58px rgba(37, 99, 235, .34),
-          0 26px 80px rgba(0, 0, 0, .58),
-          inset 0 1px 0 rgba(255, 255, 255, .12) !important;
-      }
-
-      #allDaysQuickModalBackdrop .modal-head,
-      #allDaysQuickModalBackdrop .all-days-modal-note {
-        position: relative;
-        z-index: 1;
-        border-radius: 22px !important;
-        background:
-          radial-gradient(circle at 14% 0%, rgba(147, 197, 253, .16), transparent 42%),
-          linear-gradient(180deg, rgba(15, 23, 42, .90), rgba(2, 6, 23, .68)) !important;
-        border: 1px solid rgba(147, 197, 253, .22) !important;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07);
-      }
-
-      #allDaysQuickModalBackdrop .modal-head {
-        padding: 13px 14px;
-      }
-
-      #allDaysQuickModalTitle {
-        color: #f8fafc;
-        font-weight: 1000;
-        font-size: 1.25rem;
-        text-shadow: 0 0 16px rgba(96, 165, 250, .78), 0 0 32px rgba(37, 99, 235, .38);
-      }
-
-      #closeAllDaysQuickModalBtn {
-        width: 44px;
-        height: 44px;
-        border-radius: 999px;
-        border: 1px solid rgba(147, 197, 253, .36);
-        background: rgba(15, 23, 42, .78);
-        color: #dbeafe;
-        font-weight: 1000;
-        cursor: pointer;
-        box-shadow: 0 0 18px rgba(37, 99, 235, .20);
-      }
-
-      #allDaysQuickModalBackdrop .all-days-modal-note {
-        color: #bfdbfe;
-        font-size: .82rem;
-        font-weight: 900;
-        line-height: 1.45;
-        padding: 12px 14px;
-      }
-
-      #allDaysQuickModalGrid {
-        position: relative;
-        z-index: 1;
-      }
-
-      #allDaysQuickModalGrid .tile {
-        border-radius: 22px !important;
-        background:
-          radial-gradient(circle at 16% 0%, rgba(147, 197, 253, .16), transparent 42%),
-          linear-gradient(180deg, rgba(15, 23, 42, .94), rgba(2, 6, 23, .82)) !important;
-        border: 1px solid rgba(147, 197, 253, .24) !important;
-        box-shadow:
-          0 14px 30px rgba(0, 0, 0, .28),
-          inset 0 1px 0 rgba(255, 255, 255, .08) !important;
-        transition: transform .16s ease, filter .16s ease, border-color .16s ease, box-shadow .16s ease;
-      }
-
-      #allDaysQuickModalGrid .tile.manual {
-        border-color: rgba(216, 180, 254, .68) !important;
-        background:
-          radial-gradient(circle at 16% 0%, rgba(216, 180, 254, .24), transparent 42%),
-          radial-gradient(circle at 92% 10%, rgba(250, 204, 21, .10), transparent 34%),
-          linear-gradient(180deg, rgba(88, 28, 135, .34), rgba(2, 6, 23, .84)) !important;
-      }
-
-      #allDaysQuickModalGrid .tile.sick {
-        border-color: rgba(96, 165, 250, .78) !important;
-        background:
-          radial-gradient(circle at 16% 0%, rgba(147, 197, 253, .28), transparent 42%),
-          linear-gradient(180deg, rgba(30, 64, 175, .46), rgba(2, 6, 23, .84)) !important;
-        box-shadow:
-          0 0 24px rgba(96, 165, 250, .28),
+          0 0 22px rgba(251, 146, 60, .24),
           0 14px 30px rgba(0, 0, 0, .28),
           inset 0 1px 0 rgba(255, 255, 255, .10) !important;
-      }
-
-      #allDaysQuickModalGrid .tile.leave {
-        border-color: rgba(251, 191, 36, .78) !important;
-        background:
-          radial-gradient(circle at 18% -4%, rgba(253, 224, 71, .30), transparent 38%),
-          radial-gradient(circle at 86% 8%, rgba(251, 146, 60, .20), transparent 38%),
-          linear-gradient(180deg, rgba(194, 65, 12, .34), rgba(88, 28, 135, .24), rgba(2, 6, 23, .84)) !important;
-        box-shadow:
-          0 0 24px rgba(250, 204, 21, .24),
-          0 0 36px rgba(251, 146, 60, .14),
-          0 14px 30px rgba(0, 0, 0, .28),
-          inset 0 1px 0 rgba(255, 255, 255, .10) !important;
-      }
-
-      #allDaysQuickModalGrid .tile:hover,
-      #allDaysQuickModalGrid .tile:focus {
-        transform: translateY(-3px);
-        filter: brightness(1.1) saturate(1.08);
-        border-color: rgba(191, 219, 254, .58) !important;
-        outline: none;
-      }
-
-      @media (max-width: 680px) {
-        #allDaysQuickModalBackdrop {
-          align-items: flex-end;
-          padding: 0;
-        }
-
-        #allDaysQuickModalBackdrop .all-days-modal {
-          width: 100%;
-          max-height: 92dvh;
-          border-radius: 30px 30px 0 0 !important;
-          border-left: 0 !important;
-          border-right: 0 !important;
-          border-bottom: 0 !important;
-          padding-bottom: calc(18px + env(safe-area-inset-bottom)) !important;
-        }
       }
     `;
 
@@ -236,9 +156,138 @@
 
     return {
       manual: Number(entry.manualMinutes || 0) > 0,
+      overtime: Number(entry.otMinutes || 0) > 0,
       sick: !!entry.sick || (Array.isArray(state?.sickDates) && state.sickDates.includes(iso)),
       leave: Array.isArray(state?.annualLeaveDates) && state.annualLeaveDates.includes(iso)
     };
+  }
+
+  function parseClockMinutes(value) {
+    const match = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) return null;
+
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes) || minutes >= 60) return null;
+    return hours * 60 + minutes;
+  }
+
+  function formatOvertimeMinutes(minutes) {
+    const total = Math.max(0, Math.round(Number(minutes || 0)));
+    if (!total) return '';
+
+    const hours = Math.floor(total / 60);
+    const mins = total % 60;
+
+    return `${hours}:${String(mins).padStart(2, '0')}`;
+  }
+
+  function calculateAdjustExtraOvertimeMinutes() {
+    const dayIndex = state?.currentDayIndex;
+    const dutySelect = document.getElementById('dutySelect');
+    const bankHolidaySelect = document.getElementById('bankHolidaySelect');
+    const adjustStartInput = document.getElementById('adjustStartInput');
+    const adjustFinishInput = document.getElementById('adjustFinishInput');
+
+    if (!Number.isInteger(dayIndex) || !dutySelect?.value || typeof findDuty !== 'function') return 0;
+
+    const isBankHoliday = typeof isBankHolidayDay === 'function' &&
+      isBankHolidayDay(dayIndex) &&
+      bankHolidaySelect?.value === 'true';
+
+    const duty = findDuty(dayIndex, dutySelect.value, isBankHoliday);
+    if (!duty) return 0;
+
+    const dutyStart = parseClockMinutes(duty.start);
+    let dutyFinish = parseClockMinutes(duty.finish);
+    let actualStart = parseClockMinutes(adjustStartInput?.value || duty.start);
+    let actualFinish = parseClockMinutes(adjustFinishInput?.value || duty.finish);
+
+    if (dutyStart == null || dutyFinish == null || actualStart == null || actualFinish == null) return 0;
+
+    if (dutyFinish < dutyStart) dutyFinish += 1440;
+    if (actualFinish < actualStart || actualFinish < dutyStart) actualFinish += 1440;
+
+    const earlyStartMinutes = Math.max(0, dutyStart - actualStart);
+    const lateFinishMinutes = Math.max(0, actualFinish - dutyFinish);
+
+    return earlyStartMinutes + lateFinishMinutes;
+  }
+
+  function writeAutoOvertimeNote(extraMinutes) {
+    const preview = document.getElementById('adjustPreview');
+    if (!preview) return;
+
+    preview.querySelector('.auto-ot-note')?.remove();
+
+    if (extraMinutes <= 0) return;
+
+    const note = document.createElement('span');
+    note.className = 'auto-ot-note';
+    note.textContent = `🔥 Auto-added ${formatOvertimeMinutes(extraMinutes)} to overtime for early start / late finish.`;
+    preview.appendChild(note);
+  }
+
+  function syncAutoOvertimeFromPaidAdjustment() {
+    if (autoOvertimeSyncing) return;
+
+    const otInput = document.getElementById('otMinutesInput');
+    if (!otInput || typeof parseTime !== 'function') return;
+
+    const extraMinutes = calculateAdjustExtraOvertimeMinutes();
+    const previousAuto = Number(otInput.dataset.adjustAutoOvertimeMinutes || 0);
+    const parsedCurrent = parseTime(otInput.value || '');
+
+    if (!parsedCurrent.ok) return;
+
+    const userOvertimeMinutes = Math.max(0, Number(parsedCurrent.minutes || 0) - previousAuto);
+    const nextTotal = userOvertimeMinutes + extraMinutes;
+
+    autoOvertimeSyncing = true;
+    otInput.value = formatOvertimeMinutes(nextTotal);
+    otInput.dataset.adjustAutoOvertimeMinutes = String(extraMinutes);
+    otInput.classList.toggle('auto-adjusted', extraMinutes > 0);
+    autoOvertimeSyncing = false;
+
+    setTimeout(() => writeAutoOvertimeNote(extraMinutes), 0);
+    if (typeof updateDayPreview === 'function') setTimeout(updateDayPreview, 0);
+  }
+
+  function bindAutoOvertimeFromPaidAdjustment() {
+    if (window.__autoOvertimeFromPaidAdjustmentBound) return;
+    window.__autoOvertimeFromPaidAdjustmentBound = true;
+
+    document.addEventListener('input', event => {
+      if (event.target?.id === 'otMinutesInput' && !autoOvertimeSyncing) {
+        event.target.dataset.adjustAutoOvertimeMinutes = '0';
+        setTimeout(syncAutoOvertimeFromPaidAdjustment, 0);
+        return;
+      }
+
+      if (event.target?.id === 'adjustStartInput' || event.target?.id === 'adjustFinishInput') {
+        setTimeout(syncAutoOvertimeFromPaidAdjustment, 0);
+      }
+    }, true);
+
+    document.addEventListener('change', event => {
+      if (
+        event.target?.id === 'adjustStartInput' ||
+        event.target?.id === 'adjustFinishInput' ||
+        event.target?.id === 'dutySelect' ||
+        event.target?.id === 'bankHolidaySelect'
+      ) {
+        setTimeout(syncAutoOvertimeFromPaidAdjustment, 0);
+      }
+    }, true);
+
+    document.addEventListener('click', event => {
+      if (event.target.closest?.('#saveEditBtn')) syncAutoOvertimeFromPaidAdjustment();
+
+      if (event.target.closest?.('#grid .tile, #allDaysQuickModalGrid .tile, #allDaysQuickMini .all-days-mini-day')) {
+        setTimeout(syncAutoOvertimeFromPaidAdjustment, 120);
+      }
+    }, true);
   }
 
   function decorateQuickViewDays() {
@@ -248,8 +297,21 @@
       const flags = getDayFlags(index);
 
       day.classList.toggle('manual-time', flags.manual && !flags.sick && !flags.leave);
+      day.classList.toggle('overtime-day', flags.overtime);
       day.classList.toggle('sick-day', flags.sick);
       day.classList.toggle('annual-leave', !flags.sick && flags.leave);
+
+      let symbol = day.querySelector('.quick-ot-symbol');
+      if (flags.overtime && !symbol) {
+        symbol = document.createElement('span');
+        symbol.className = 'quick-ot-symbol';
+        symbol.textContent = '🔥';
+        symbol.setAttribute('aria-hidden', 'true');
+        day.appendChild(symbol);
+      }
+
+      if (!flags.overtime && symbol) symbol.remove();
+
       day.dataset.quickDayIndex = String(index);
       day.setAttribute('role', 'button');
       day.setAttribute('tabindex', '0');
@@ -375,6 +437,7 @@
   function init() {
     addStyle();
     bindQuickViewDayClicks();
+    bindAutoOvertimeFromPaidAdjustment();
     observeQuickViewMiniGrid();
     decorateQuickViewDays();
 
