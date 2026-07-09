@@ -1,0 +1,40 @@
+{
+  "name": "Member Elite Portal",
+  "short_name": "Member Elite",
+  "description": "Personal driver pay, rota, pay-in and weekly tracker.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "maskable-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Open tracker",
+      "short_name": "Tracker",
+      "url": "./index.html",
+      "description": "Open Member Elite Portal"
+    },
+    {
+      "name": "Open rota",
+      "short_name": "Rota",
+      "url": "./rota.html",
+      "description": "Open Driver Rota Manager"
+    }
+  ]
+}

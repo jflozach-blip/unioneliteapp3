@@ -1,0 +1,1508 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Driver Rota Manager Summer 2026</title>
+    <style>
+        :root {
+            --panel-bg: rgba(255, 255, 255, 0.82);
+            --panel-border: rgba(161, 148, 184, 0.22);
+            --bg-top: 37, 99, 235;
+            --bg-bottom: 29, 78, 216;
+            font-family: Inter, system-ui, sans-serif;
+            color: #0f172a;
+            background: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            padding: 25px;
+            margin: 0;
+            min-width: 320px;
+            color: #1a0f2a;
+            background:
+                radial-gradient(circle at top, rgba(var(--bg-top), 0.18), transparent 42%),
+                radial-gradient(circle at bottom, rgba(var(--bg-bottom), 0.14), transparent 48%),
+                linear-gradient(135deg, rgba(var(--bg-top), 0.12), rgba(var(--bg-bottom), 0.22)),
+                url("") center/cover fixed no-repeat;
+            background-blend-mode: screen, screen, normal, normal;
+        }
+
+        .min-h-screen {
+            min-height: 100vh;
+        }
+
+        .max-w-6xl {
+            max-width: 1200px;
+        }
+
+        .mx-auto {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .space-y-6>*+* {
+            margin-top: 1.5rem;
+        }
+
+        .p-6 {
+            padding: 1.5rem;
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+
+        .mt-4 {
+            margin-top: 1rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 0.75rem;
+        }
+
+        .bg-white {
+            background: var(--panel-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .text-3xl {
+            font-size: 2rem;
+            line-height: 1.1;
+        }
+
+        .rounded-2xl {
+            border-radius: 1.25rem;
+        }
+
+        .shadow {
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-rotas {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .rota-btn {
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            min-height: 64px;
+            padding: 0.95rem 1rem;
+            border-radius: 18px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            position: relative;
+            overflow: hidden;
+            transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease, border-color 180ms ease;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .rota-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 45%);
+            pointer-events: none;
+        }
+
+        .rota-btn::after {
+            content: '';
+            position: absolute;
+            inset: auto 12px 10px 12px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.22);
+            pointer-events: none;
+        }
+
+        .rota-btn:hover {
+            transform: translateY(-3px) scale(1.01);
+            filter: brightness(1.08) saturate(1.08);
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.26), 0 0 28px rgba(255, 255, 255, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        .rota-btn.active {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.34);
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.3), 0 0 30px rgba(255, 255, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.26);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 320px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font: inherit;
+            background: #fff;
+        }
+
+        table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+        }
+
+        .section {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+            border-radius: 1.25rem;
+            overflow: hidden;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        td {
+            border-top: 1px solid rgba(148, 163, 184, 0.25);
+            padding: 0.75rem;
+            vertical-align: top;
+            white-space: nowrap;
+        }
+
+        td:first-child {
+            width: 64px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        td:nth-child(2) {
+            min-width: 220px;
+            font-weight: 600;
+        }
+
+        td:nth-child(n + 3) {
+            text-align: center;
+            min-width: 64px;
+        }
+
+        .duty-DO {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .duty-SP {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        input[type="date"] {
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 0.7rem 1rem;
+            font: inherit;
+            width: 100%;
+            max-width: 240px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.84)), radial-gradient(circle at top right, rgba(255, 255, 255, 0.14), transparent 35%);
+            color: white;
+            padding: 1rem 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent 35%, rgba(255, 255, 255, 0.04));
+            pointer-events: none;
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.05rem;
+            letter-spacing: 0.02em;
+        }
+
+        .header-title p {
+            margin: 0;
+            color: rgba(226, 232, 240, 0.88);
+            font-size: 0.9rem;
+        }
+
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem;
+            z-index: 9999;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            width: min(96vw, 980px);
+            border-radius: 1.25rem;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+            max-height: 94vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-body {
+            padding: 1rem;
+            overflow: auto;
+        }
+
+        .modal-close {
+            float: right;
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .modal-table {
+            width: 100%;
+            min-width: 700px;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .modal-table td,
+        .modal-table th {
+            border-top: 1px solid rgba(148, 163, 184, 0.25);
+            padding: 0.6rem;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .modal-table th {
+            background: #f8fafc;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .preview-note {
+            margin: 0;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .search-results {
+            display: grid;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .search-result {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            cursor: pointer;
+        }
+
+        .search-result:hover {
+            background: #e2e8f0;
+        }
+
+        .rota-main {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+
+        .rota-late {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .rota-split {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .rota-r {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+        }
+
+        .rota-fixed {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+                background-attachment: scroll;
+            }
+
+            .p-6 {
+                padding: 0.9rem;
+            }
+
+            .space-y-6>*+* {
+                margin-top: 0.85rem;
+            }
+
+            .text-3xl {
+                font-size: 1.45rem;
+            }
+
+            .rounded-2xl {
+                border-radius: 1rem;
+            }
+
+            .modal {
+                width: 100vw;
+                max-height: 100vh;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .modal-body {
+                padding: 0.75rem;
+            }
+
+            .modal-overlay {
+                padding: 0;
+                align-items: stretch;
+                justify-content: stretch;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input,
+            input[type="date"] {
+                max-width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            table,
+            .modal-table {
+                min-width: 760px;
+            }
+
+            td {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            td:nth-child(2) {
+                min-width: 160px;
+            }
+
+            td:nth-child(n + 3) {
+                min-width: 52px;
+            }
+
+            .header {
+                padding: 0.85rem;
+            }
+
+            .header-title h1 {
+                font-size: 0.98rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .min-h-screen {
+                background-attachment: scroll;
+            }
+
+            .p-6 {
+                padding: 0.75rem;
+            }
+
+            .mt-4 {
+                margin-top: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="min-h-screen p-6">
+        <div class="max-w-6xl mx-auto space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow">
+                <div class="header-title">
+                    <h1>🚍 Driver Rota Manager Summer 2026</h1>
+                    <p>Premium rota planner with live search and week views</p>
+                </div>
+                <p class="mt-2">Change the date below and select a Rota, scroll down and press the pop up button to view full rota. The Drivers will drop down the Rota and be on the correct line for chosen date. You can also search for a driver below. Rota lines : <span id="rowCount">0</span></p>
+
+                <div class="toolbar">
+                    <div>
+                        <label class="font-bold" style="display:block; margin-bottom:8px;">Select a Date</label>
+                        <input type="date" id="datePicker" />
+                    </div>
+                    <div style="flex:1; min-width: 220px;">
+                        <label class="font-bold" style="display:block; margin-bottom:8px;">Search Driver Name</label>
+                        <input type="text" id="driverSearch" class="search-input" placeholder="Type a driver name..." />
+                    </div>
+                    <div style="align-self:end;">
+                        <button class="btn btn-secondary" id="openSearchBtn">Search</button>
+                    </div>
+                </div>
+
+                <div class="btn-rotas" id="rotaButtons"></div>
+            </div>
+
+            <div id="groups"></div>
+        </div>
+    </div>
+
+    <div id="rotaModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rotaModalTitle">
+            <div class="modal-body">
+                <button id="closeRotaBtn" class="btn modal-close">Close</button>
+                <h2 id="rotaModalTitle" class="mb-3">Rota</h2>
+                <div id="rotaModalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="searchModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="searchModalTitle">
+            <div class="modal-body">
+                <button id="closeSearchBtn" class="btn modal-close">Close</button>
+                <h2 id="searchModalTitle" class="mb-3">Driver Search</h2>
+                <div id="searchModalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GROUPS = ['Main', 'Late', 'Split', 'R', 'Fixed'];
+        const BASE_DATE = '2026-07-20';
+        let selectedRota = 'Main';
+        const ROTA_COLORS = {
+            Main: {
+                top: '37, 99, 235',
+                bottom: '29, 78, 216'
+            },
+            Late: {
+                top: '245, 158, 11',
+                bottom: '217, 119, 6'
+            },
+            Split: {
+                top: '16, 185, 129',
+                bottom: '5, 150, 105'
+            },
+            R: {
+                top: '139, 92, 246',
+                bottom: '109, 40, 217'
+            },
+            Fixed: {
+                top: '236, 72, 153',
+                bottom: '219, 39, 119'
+            }
+        };
+
+        const SAMPLE_ROWS = [{
+                id: 1,
+                rota: 'Main',
+                driver: 'Smith Tom',
+                duties: ['418', '431', '404', '402', '403', 'DO', 'DO']
+            },
+            {
+                id: 2,
+                rota: 'Main',
+                driver: 'Goncalves Joe',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 3,
+                rota: 'Main',
+                driver: 'Veleiro Manuel B',
+                duties: ['DO', '412', '429', '412', '402', '105', 'DO']
+            },
+            {
+                id: 4,
+                rota: 'Main',
+                driver: 'Mendes Virgilio',
+                duties: ['413', '429', '425', 'DO', 'DO', '106', '217']
+            },
+            {
+                id: 5,
+                rota: 'Main',
+                driver: '',
+                duties: ['DO', '434', '440', '419', 'DO', '143', '216']
+            },
+            {
+                id: 6,
+                rota: 'Main',
+                driver: '',
+                duties: ['452', '452', '452', 'DO', '454', 'DO', 'DO']
+            },
+            {
+                id: 7,
+                rota: 'Main',
+                driver: '',
+                duties: ['421', 'DO', 'DO', '416', '424', '131', '204']
+            },
+            {
+                id: 8,
+                rota: 'Main',
+                driver: '',
+                duties: ['406', 'DO', '410', '415', '404', '108', 'DO']
+            },
+            {
+                id: 9,
+                rota: 'Main',
+                driver: 'David Silvio',
+                duties: ['401', '422', 'DO', 'DO', '405', '128', '218']
+            },
+            {
+                id: 10,
+                rota: 'Main',
+                driver: 'Dyugerov Teodor',
+                duties: ['DO', '443', '435', '447', 'DO', '112', '227']
+            },
+            {
+                id: 11,
+                rota: 'Main',
+                driver: 'Lee Robert',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 12,
+                rota: 'Main',
+                driver: 'Rodrigues Fernando',
+                duties: ['454', '453', '460', '450', '464', 'DO', 'DO']
+            },
+            {
+                id: 13,
+                rota: 'Main',
+                driver: 'Mourant Gary',
+                duties: ['DO', '410', '431', '410', 'DO', '120', '203']
+            },
+            {
+                id: 14,
+                rota: 'Main',
+                driver: 'Rodrigues Norberto',
+                duties: ['403', '425', '432', 'DO', '401', '138', 'DO']
+            },
+            {
+                id: 15,
+                rota: 'Main',
+                driver: 'Goose Paul',
+                duties: ['410', '416', '421', 'DO', 'DO', '123', '219']
+            },
+            {
+                id: 16,
+                rota: 'Main',
+                driver: 'Correia Fabio',
+                duties: ['DO', '436', '438', '429', '442', 'DO', 'DO']
+            },
+            {
+                id: 17,
+                rota: 'Main',
+                driver: 'Ferreira Emanuel',
+                duties: ['457', '438', '463', 'DO', 'DO', '157', '236']
+            },
+            {
+                id: 18,
+                rota: 'Main',
+                driver: 'De Freitas, Rui 3',
+                duties: ['DO', '404', '419', '403', 'DO', '104', '208']
+            },
+            {
+                id: 19,
+                rota: 'Main',
+                driver: 'Ferriera Marco R',
+                duties: ['412', '419', '401', 'DO', '427', '126', 'DO']
+            },
+            {
+                id: 20,
+                rota: 'Main',
+                driver: 'Andrade Duarte',
+                duties: ['DO', 'DO', '406', '404', '430', '134', '211']
+            },
+            {
+                id: 21,
+                rota: 'Main',
+                driver: 'Martins Manuel',
+                duties: ['DO', '447', '441', '432', '440', 'DO', '230']
+            },
+            {
+                id: 22,
+                rota: 'Main',
+                driver: 'Barradas Roberto D',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 23,
+                rota: 'Main',
+                driver: 'Itai Mavhimira',
+                duties: ['461', '450', 'DO', '453', 'DO', '167', '237']
+            },
+            {
+                id: 24,
+                rota: 'Main',
+                driver: 'Derek Willder',
+                duties: ['DO', 'DO', '422', '406', '410', '117', '207']
+            },
+            {
+                id: 25,
+                rota: 'Main',
+                driver: 'Melia Paul R',
+                duties: ['DO', '403', '426', '418', '428', '136', 'DO']
+            },
+            {
+                id: 26,
+                rota: 'Main',
+                driver: 'Jardim Vicky',
+                duties: ['419', '432', '414', '426', '426', 'DO', 'DO']
+            },
+            {
+                id: 27,
+                rota: 'Main',
+                driver: 'Carrico Jose',
+                duties: ['449', '444', '445', 'DO', 'DO', '144', '226']
+            },
+            {
+                id: 28,
+                rota: 'Main',
+                driver: 'Finlay Arenz',
+                duties: ['422', '435', '444', 'DO', 'DO', '147', '222']
+            },
+            {
+                id: 29,
+                rota: 'Main',
+                driver: 'Capontes Femando S',
+                duties: ['453', '459', 'DO', '463', 'DO', '155', '239']
+            },
+            {
+                id: 30,
+                rota: 'Main',
+                driver: 'Steve Simon',
+                duties: ['DO', '415', '405', 'DO', '419', '103', '221']
+            },
+            {
+                id: 31,
+                rota: 'Main',
+                driver: 'Alun Parry',
+                duties: ['425', '417', 'DO', '417', '406', '122', 'DO']
+            },
+            {
+                id: 32,
+                rota: 'Main',
+                driver: 'Moreira Nuno',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 33,
+                rota: 'Main',
+                driver: 'Anselmo Andrade',
+                duties: ['409', '409', 'DO', 'DO', '432', '101', '205']
+            },
+            {
+                id: 34,
+                rota: 'Main',
+                driver: 'Barreto Jose H',
+                duties: ['447', 'DO', 'DO', '430', '433', '132', '229']
+            },
+            {
+                id: 35,
+                rota: 'Main',
+                driver: 'De Gouveia Armando',
+                duties: ['445', 'DO', '443', '444', '445', '156', 'DO']
+            },
+            {
+                id: 36,
+                rota: 'Main',
+                driver: 'Nobregaa Michael D',
+                duties: ['464', '457', '450', '452', '447', 'DO', 'DO']
+            },
+            {
+                id: 37,
+                rota: 'Main',
+                driver: 'Da Cunha Jose M',
+                duties: ['428', 'DO', 'DO', '420', '414', '113', '202']
+            },
+            {
+                id: 38,
+                rota: 'Main',
+                driver: 'Vitor Januario',
+                duties: ['417', 'DO', '430', '407', '423', '109', 'DO']
+            },
+            {
+                id: 39,
+                rota: 'Main',
+                driver: 'Germano De Abreu',
+                duties: ['415', '401', 'DO', 'DO', '412', '129', '228']
+            },
+            {
+                id: 40,
+                rota: 'Main',
+                driver: 'Luis Rafael E',
+                duties: ['439', '445', 'DO', '445', 'DO', '153', '223']
+            },
+            {
+                id: 41,
+                rota: 'Main',
+                driver: 'Texiera Denis',
+                duties: ['429', 'DO', '442', '438', '446', 'DO', 'DO']
+            },
+            {
+                id: 42,
+                rota: 'Main',
+                driver: 'Morrison Angus',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 43,
+                rota: 'Main',
+                driver: 'Leonard Christopher',
+                duties: ['458', '463', 'DO', 'DO', '443', '159', '240']
+            },
+            {
+                id: 44,
+                rota: 'Main',
+                driver: 'Barreto Luis R',
+                duties: ['DO', '430', '403', '405', 'DO', '130', '233']
+            },
+            {
+                id: 45,
+                rota: 'Main',
+                driver: 'Cristea Marius-George',
+                duties: ['404', '433', '424', 'DO', '416', '127', 'DO']
+            },
+            {
+                id: 46,
+                rota: 'Main',
+                driver: 'Femandes, Carlos',
+                duties: ['430', '413', '415', '428', '420', 'DO', 'DO']
+            },
+            {
+                id: 47,
+                rota: 'Main',
+                driver: 'Ferreira, Jorge T',
+                duties: ['443', '441', 'DO', '433', 'DO', '145', '231']
+            },
+            {
+                id: 48,
+                rota: 'Main',
+                driver: 'Esteves Rui J G',
+                duties: ['434', '442', 'DO', '431', '438', 'DO', 'DO']
+            },
+            {
+                id: 49,
+                rota: 'Main',
+                driver: 'Rodrigues Joao',
+                duties: ['460', '461', 'DO', 'DO', '463', '154', '238']
+            },
+            {
+                id: 50,
+                rota: 'Main',
+                driver: 'Leon Alves',
+                duties: ['DO', '405', '434', '408', 'DO', '135', '224']
+            },
+            {
+                id: 51,
+                rota: 'Main',
+                driver: 'Andrade Antonio J',
+                duties: ['416', '423', '423', 'DO', '417', '115', 'DO']
+            },
+            {
+                id: 52,
+                rota: 'Main',
+                driver: 'Daniel Diaconu',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 53,
+                rota: 'Main',
+                driver: 'Rodrigues Adelino V',
+                duties: ['424', '424', 'DO', 'DO', '425', '118', '206']
+            },
+            {
+                id: 54,
+                rota: 'Main',
+                driver: 'Jose De Abreu',
+                duties: ['440', '440', 'DO', '440', '451', '146', 'DO']
+            },
+            {
+                id: 55,
+                rota: 'Main',
+                driver: 'Teixeira Fra',
+                duties: ['435', 'DO', '449', '435', '441', '152', 'DO']
+            },
+            {
+                id: 56,
+                rota: 'Main',
+                driver: 'Ness Michael B',
+                duties: ['459', '454', '464', 'DO', '452', '160', 'DO']
+            },
+            {
+                id: 57,
+                rota: 'Main',
+                driver: 'De Freitas Abilio Alves',
+                duties: ['426', '427', '427', 'DO', 'DO', '142', '213']
+            },
+            {
+                id: 58,
+                rota: 'Main',
+                driver: 'Irek Krawulski',
+                duties: ['408', '426', '428', 'DO', '413', '119', 'DO']
+            },
+            {
+                id: 59,
+                rota: 'Main',
+                driver: 'Thomas Glen',
+                duties: ['DO', '411', 'DO', '424', '418', '111', '212']
+            },
+            {
+                id: 60,
+                rota: 'Main',
+                driver: 'Dino Franco',
+                duties: ['446', 'DO', '447', '436', 'DO', '141', 'DO']
+            },
+            {
+                id: 61,
+                rota: 'Main',
+                driver: 'Lozach Jonathan',
+                duties: ['437', '437', '446', '442', 'DO', 'DO', 'DO']
+            },
+            {
+                id: 62,
+                rota: 'Main',
+                driver: 'Goncalves Armando',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 63,
+                rota: 'Main',
+                driver: 'Bogacki Waldemar',
+                duties: ['438', 'DO', '461', '458', 'DO', '168', '235']
+            },
+            {
+                id: 64,
+                rota: 'Main',
+                driver: 'Claudio Fiueira',
+                duties: ['DO', 'DO', '411', '411', '408', '137', '220']
+            },
+            {
+                id: 65,
+                rota: 'Main',
+                driver: '',
+                duties: ['DO', '418', '412', '401', '429', '124', 'DO']
+            },
+            {
+                id: 66,
+                rota: 'Main',
+                driver: 'law Debinski',
+                duties: ['411', '421', '420', '427', '409', 'DO', 'DO']
+            },
+            {
+                id: 67,
+                rota: 'Main',
+                driver: 'Gomes Fortunato',
+                duties: ['441', 'DO', '451', '441', '444', '148', 'DO']
+            },
+            {
+                id: 68,
+                rota: 'Main',
+                driver: 'Goncalves Joao Aurelio',
+                duties: ['436', 'DO', '437', '434', 'DO', '133', 'DO']
+            },
+            {
+                id: 69,
+                rota: 'Main',
+                driver: 'Powell D an',
+                duties: ['450', 'DO', 'DO', '464', '450', '165', '232']
+            },
+            {
+                id: 70,
+                rota: 'Main',
+                driver: 'Gouveia, Pedro',
+                duties: ['432', 'DO', '408', '425', 'DO', '116', '214']
+            },
+            {
+                id: 71,
+                rota: 'Main',
+                driver: 'Alves. Miguel',
+                duties: ['405', '406', 'DO', '422', '415', '139', 'DO']
+            },
+            {
+                id: 72,
+                rota: 'Main',
+                driver: '',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 73,
+                rota: 'Main',
+                driver: 'Rogerio Gouveia',
+                duties: ['414', '420', '416', 'DO', 'DO', '121', '210']
+            },
+            {
+                id: 74,
+                rota: 'Main',
+                driver: 'Correia Paulo F',
+                duties: ['444', '449', 'DO', '449', '449', '151', 'DO']
+            },
+            {
+                id: 75,
+                rota: 'Main',
+                driver: 'Ferreira, Joao',
+                duties: ['431', 'DO', '436', '437', '436', 'DO', 'DO']
+            },
+            {
+                id: 76,
+                rota: 'Main',
+                driver: '',
+                duties: ['463', '464', 'DO', 'DO', '437', '158', '234']
+            },
+            {
+                id: 77,
+                rota: 'Main',
+                driver: 'Joac Abreu 2',
+                duties: ['433', '428', '417', 'DO', 'DO', '114', '225']
+            },
+            {
+                id: 78,
+                rota: 'Main',
+                driver: 'Gouveia Luis',
+                duties: ['420', '414', '409', 'DO', '411', '140', 'DO']
+            },
+            {
+                id: 79,
+                rota: 'Main',
+                driver: 'Stefan Grigore',
+                duties: ['DO', '408', '413', '409', 'DO', '110', '209']
+            },
+            {
+                id: 80,
+                rota: 'Main',
+                driver: 'Azevedo Fernando',
+                duties: ['442', '446', 'DO', '446', '434', 'DO', 'DO']
+            },
+            {
+                id: 81,
+                rota: 'Main',
+                driver: 'Carvalho. Marta',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 82,
+                rota: 'Main',
+                driver: 'Wlodzimierz Sobecki',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 83,
+                rota: 'Main',
+                driver: 'Marcos Maria',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 84,
+                rota: 'Main',
+                driver: 'Kaminski, Adam',
+                duties: ['423', 'DO', 'DO', '413', '422', '125', '215']
+            },
+            {
+                id: 85,
+                rota: 'Main',
+                driver: 'Stewart Brian F',
+                duties: ['427', 'DO', '418', '414', '421', '107', 'DO']
+            },
+            {
+                id: 86,
+                rota: 'Main',
+                driver: 'Augustinho Marcio',
+                duties: ['407', '407', '407', '423', '407', 'DO', 'DO']
+            },
+            {
+                id: 87,
+                rota: 'Main',
+                driver: 'Da Silva Eugene',
+                duties: ['455', '458', '459', '461', '457', 'DO', 'DO']
+            },
+            {
+                id: 88,
+                rota: 'Main',
+                driver: 'De Sousa Leandro',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+            {
+                id: 89,
+                rota: 'Main',
+                driver: '',
+                duties: ['SP', 'SP', 'SP', 'SP', 'SP', 'DO', 'DO']
+            },
+
+            {
+                id: 90,
+                rota: 'Late',
+                driver: 'Batista Jose 2',
+                duties: ['DO', 'DO', '453', '454', '9917', '164', '241']
+            },
+            {
+                id: 91,
+                rota: 'Late',
+                driver: 'Steve Dry',
+                duties: ['DO', 'DO', '455', '9917', '456', '162', '243']
+            },
+            {
+                id: 92,
+                rota: 'Late',
+                driver: 'Turzynski Lucas',
+                duties: ['DO', 'DO', '9917', '455', '458', '161', '242']
+            },
+            {
+                id: 93,
+                rota: 'Late',
+                driver: 'Abreu Joao D',
+                duties: ['DO', '460', '457', '459', '459', '163', 'DO']
+            },
+            {
+                id: 94,
+                rota: 'Late',
+                driver: 'Lopes Anibal',
+                duties: ['456', '9917', '456', '456', '462', 'DO', 'DO']
+            },
+            {
+                id: 95,
+                rota: 'Late',
+                driver: 'Wayne Buchanen',
+                duties: ['462', '455', '458', '460', '460', 'DO', 'DO']
+            },
+            {
+                id: 96,
+                rota: 'Late',
+                driver: 'Rejak Pawel',
+                duties: ['9917', '456', '454', '457', '455', 'DO', 'DO']
+            },
+
+            {
+                id: 97,
+                rota: 'Split',
+                driver: 'De Sousa Rafael F',
+                duties: ['DO', '4302', '4309', '4309', '4309', 'DO', 'DO']
+            },
+            {
+                id: 98,
+                rota: 'Split',
+                driver: 'Waugh Darren',
+                duties: ['9915', '9915', '4306', '4306', '4306', 'DO', 'DO']
+            },
+            {
+                id: 99,
+                rota: 'Split',
+                driver: 'Hammond Peter C',
+                duties: ['4601', '4308', '4308', '4310', '4304', 'DO', 'DO']
+            },
+            {
+                id: 100,
+                rota: 'Split',
+                driver: 'Franco Luis',
+                duties: ['4308', '4304', '4303', '4601', '4310', 'DO', 'DO']
+            },
+            {
+                id: 101,
+                rota: 'Split',
+                driver: 'Whitman-Hall Eli',
+                duties: ['4304', '4310', '4304', '4301', '4601', 'DO', 'DO']
+            },
+            {
+                id: 102,
+                rota: 'Split',
+                driver: 'De Freitas Rui J',
+                duties: ['4310', '4301', '4601', '4304', '4303', 'DO', 'DO']
+            },
+            {
+                id: 103,
+                rota: 'Split',
+                driver: 'Angelini Adriano',
+                duties: ['4602', '4309', '4301', '9915', '4302', 'DO', 'DO']
+            },
+            {
+                id: 104,
+                rota: 'Split',
+                driver: 'Mollo John F',
+                duties: ['4302', '4602', '9915', '4305', '4301', 'DO', 'DO']
+            },
+            {
+                id: 105,
+                rota: 'Split',
+                driver: 'Murra Kenneth',
+                duties: ['4301', '4305', '4302', '4602', '9915', 'DO', 'DO']
+            },
+            {
+                id: 106,
+                rota: 'Split',
+                driver: 'Smith Peter',
+                duties: ['4303', '4601', '4310', '4303', '4308', 'DO', 'DO']
+            },
+            {
+                id: 107,
+                rota: 'Split',
+                driver: 'Wagnor Anthony',
+                duties: ['4306', 'DO', '4305', '4307', '4305', 'DO', 'DO']
+            },
+            {
+                id: 108,
+                rota: 'Split',
+                driver: 'Brockbank Chris',
+                duties: ['4309', '4307', '4602', '4302', '4602', 'DO', 'DO']
+            },
+
+            {
+                id: 109,
+                rota: 'R',
+                driver: 'Herridge Peter',
+                duties: ['DO', 'DO', '4307', '9916', '4307', 'DO', 'DO']
+            },
+            {
+                id: 110,
+                rota: 'R',
+                driver: 'Berghouse Paul A',
+                duties: ['9916', '4306', 'DO', '4308', 'DO', 'DO', 'DO']
+            },
+            {
+                id: 111,
+                rota: 'R',
+                driver: 'De Freitas Rui M',
+                duties: ['4307', '4303', '9916', 'DO', 'DO', 'DO', 'DO']
+            },
+            {
+                id: 112,
+                rota: 'R',
+                driver: 'Carter Michael Andrew',
+                duties: ['4305', '9916', 'DO', 'DO', '9916', 'DO', 'DO']
+            },
+
+            {
+                id: 113,
+                rota: 'Fixed',
+                driver: 'Pinto Tiago',
+                duties: ['451', '451', 'DO', '451', '453', '149', 'DO']
+            },
+            {
+                id: 114,
+                rota: 'Fixed',
+                driver: 'Makosa Michel',
+                duties: ['DO', '462', '462', '462', '461', '166', 'DO']
+            },
+            {
+                id: 115,
+                rota: 'Fixed',
+                driver: 'Freitas Carlos',
+                duties: ['4901', '4901', '4901', '4901', '4901', 'DO', 'DO']
+            },
+            {
+                id: 116,
+                rota: 'Fixed',
+                driver: 'Wheeler David',
+                duties: ['4902', '4902', '4902', '4902', '4902', 'DO', 'DO']
+            },
+            {
+                id: 117,
+                rota: 'Fixed',
+                driver: 'Aubert Paul',
+                duties: ['4903', '4903', '4903', '4903', '4903', 'DO', 'DO']
+            },
+            {
+                id: 118,
+                rota: 'Fixed',
+                driver: 'Pereira Jose',
+                duties: ['4904', '4904', '4904', '4904', '4904', 'DO', 'DO']
+            },
+            {
+                id: 119,
+                rota: 'Fixed',
+                driver: 'Lightbody David',
+                duties: ['4905', '4905', '4905', '4905', '4905', 'DO', 'DO']
+            }
+        ];
+
+        const datePicker = document.getElementById('datePicker');
+        const driverSearch = document.getElementById('driverSearch');
+        const openSearchBtn = document.getElementById('openSearchBtn');
+        const rowCount = document.getElementById('rowCount');
+        const groupsEl = document.getElementById('groups');
+        const rotaButtons = document.getElementById('rotaButtons');
+        const rotaModal = document.getElementById('rotaModal');
+        const closeRotaBtn = document.getElementById('closeRotaBtn');
+        const rotaModalTitle = document.getElementById('rotaModalTitle');
+        const rotaModalContent = document.getElementById('rotaModalContent');
+        const searchModal = document.getElementById('searchModal');
+        const closeSearchBtn = document.getElementById('closeSearchBtn');
+        const searchModalTitle = document.getElementById('searchModalTitle');
+        const searchModalContent = document.getElementById('searchModalContent');
+
+        datePicker.value = BASE_DATE;
+
+        function setBackgroundForRota(rota) {
+            const colors = ROTA_COLORS[rota] || ROTA_COLORS.Main;
+            document.documentElement.style.setProperty('--bg-top', colors.top);
+            document.documentElement.style.setProperty('--bg-bottom', colors.bottom);
+        }
+
+        function getWeekOffset(selectedDate) {
+            const base = new Date(BASE_DATE);
+            const current = new Date(selectedDate);
+            return Math.round((current - base) / (7 * 24 * 60 * 60 * 1000));
+        }
+
+        function weekRowsForRota(data, rota) {
+            const rows = data.filter(r => r.rota === rota).map(r => ({
+                ...r,
+                duties: [...r.duties]
+            }));
+            const names = rows.map(r => r.driver);
+            rows.forEach((row, index) => {
+                if (!names.length) return;
+                const source = ((index - getWeekOffset(datePicker.value)) % names.length + names.length) % names.length;
+                row.driver = names[source];
+            });
+            return rows;
+        }
+
+        function buildTable(rows) {
+            return `
+                <div class="table-wrap">
+                    <table>
+                        <tbody>
+                            ${rows.map(row => `
+                                <tr>
+                                    <td>${row.id}</td>
+                                    <td>${row.driver || ''}</td>
+                                    ${row.duties.map(d => `<td class="duty-${d}">${d}</td>`).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderButtons() {
+            rotaButtons.innerHTML = GROUPS.map(group => `
+                <button class="btn btn-primary rota-btn rota-${group.toLowerCase()} ${selectedRota === group ? 'active' : ''}" data-rota="${group}">
+                    ${group}
+                </button>
+            `).join('');
+
+            document.querySelectorAll('.rota-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedRota = btn.dataset.rota;
+                    setBackgroundForRota(selectedRota);
+                    renderButtons();
+                    render();
+                });
+            });
+        }
+
+        function render() {
+            setBackgroundForRota(selectedRota);
+            rowCount.textContent = SAMPLE_ROWS.length;
+            groupsEl.innerHTML = '';
+            const currentRows = weekRowsForRota(SAMPLE_ROWS, selectedRota);
+            const section = document.createElement('div');
+            section.className = 'section';
+            section.innerHTML = `
+                <div class="header">
+                    <span>${selectedRota} Rota (${currentRows.length})</span>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" id="openSelectedRota">Open Popup</button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="preview-note mb-3">Preview below shows the selected rota for the chosen week.</p>
+                    ${buildTable(currentRows.slice(0, 8))}
+                </div>
+            `;
+            groupsEl.appendChild(section);
+
+            document.getElementById('openSelectedRota').addEventListener('click', () => {
+                rotaModalTitle.textContent = `${selectedRota} Rota - Week View`;
+                rotaModalContent.innerHTML = buildTable(currentRows);
+                rotaModal.classList.add('show');
+                rotaModal.setAttribute('aria-hidden', 'false');
+            });
+        }
+
+        function openDriverSearchModal(name) {
+            const query = name.trim().toLowerCase();
+            const data = SAMPLE_ROWS.map(r => ({
+                ...r,
+                duties: [...r.duties]
+            }));
+            const weekOffset = getWeekOffset(datePicker.value);
+
+            GROUPS.forEach(group => {
+                const rows = data.filter(r => r.rota === group);
+                const names = rows.map(r => r.driver);
+                rows.forEach((row, index) => {
+                    if (!names.length) return;
+                    const source = ((index - weekOffset) % names.length + names.length) % names.length;
+                    row.driver = names[source];
+                });
+            });
+
+            const matches = data.filter(row => (row.driver || '').toLowerCase().includes(query));
+            searchModalTitle.textContent = `Search Results for "${name}"`;
+            searchModalContent.innerHTML = matches.length ? `
+                <div class="search-results">
+                    ${matches.map(row => `
+                        <div class="search-result" data-id="${row.id}">
+                            <div>
+                                <div><strong>${row.driver || ''}</strong></div>
+                                <div>ID: ${row.id} • Rota: ${row.rota}</div>
+                            </div>
+                            <div>Open</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="searchDriverDetails" class="mt-4"></div>
+            ` : `<p class="preview-note">No drivers found.</p>`;
+
+            searchModal.classList.add('show');
+            searchModal.setAttribute('aria-hidden', 'false');
+
+            searchModalContent.querySelectorAll('.search-result').forEach(item => {
+                item.addEventListener('click', () => {
+                    const id = Number(item.dataset.id);
+                    const row = matches.find(r => r.id === id);
+                    if (!row) return;
+                    document.getElementById('searchDriverDetails').innerHTML = `
+                        <h3 class="mb-3">${row.driver || ''} - Week Details</h3>
+                        <div class="table-wrap">
+                            <table class="modal-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Driver</th>
+                                        <th>Mon</th>
+                                        <th>Tue</th>
+                                        <th>Wed</th>
+                                        <th>Thu</th>
+                                        <th>Fri</th>
+                                        <th>Sat</th>
+                                        <th>Sun</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>${row.id}</td>
+                                        <td>${row.driver || ''}</td>
+                                        ${row.duties.map(d => `<td class="duty-${d}">${d}</td>`).join('')}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function closeRotaModal() {
+            rotaModal.classList.remove('show');
+            rotaModal.setAttribute('aria-hidden', 'true');
+        }
+
+        function closeSearchModal() {
+            searchModal.classList.remove('show');
+            searchModal.setAttribute('aria-hidden', 'true');
+        }
+
+        openSearchBtn.addEventListener('click', () => openDriverSearchModal(driverSearch.value));
+        driverSearch.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') openDriverSearchModal(driverSearch.value);
+        });
+
+        closeRotaBtn.addEventListener('click', closeRotaModal);
+        closeSearchBtn.addEventListener('click', closeSearchModal);
+
+        rotaModal.addEventListener('click', (e) => {
+            if (e.target === rotaModal) closeRotaModal();
+        });
+
+        searchModal.addEventListener('click', (e) => {
+            if (e.target === searchModal) closeSearchModal();
+        });
+
+        datePicker.addEventListener('change', render);
+        renderButtons();
+        render();
+    </script>
+</body>
+
+</html>

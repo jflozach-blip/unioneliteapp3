@@ -1,0 +1,95 @@
+Change log
+
+8/07/2026
+
+//
+
+re adding the rep on demand
+
+Files changed/
+
+How it works
+
+modal.js loads rep-on-demand.js.
+
+rep-on-demand.js creates a new button called Rep On Demand inside the portal menu.
+
+Clicking the button opens a custom modal.
+
+The modal has preset messages and a custom message box.
+
+When sent, it opens WhatsApp using:
+
+https://wa.me/<number>?text=<message>
+
+The message automatically includes:
+
+Sent from Member Elite Portal
+
+<date and time>
+
+//
+
+Small text and sub title wording changes
+
+//
+
+Day tile modal elite UI
+
+modal.js now loads day-modal-elite.js.
+
+day-modal-elite.js gives the day tile modal a glowing Elite-style glass UI, better buttons, premium inputs, and mobile bottom-sheet styling.
+
+//
+
+Update Pain tracker modal to only show days that have fares added from day tile
+
+modal.js now loads payin-modal-filter.js.
+The Pay-in modal now only shows days where Pay-in / fares were entered from the day tile.
+Each listed day keeps Deduct / Undo plus an Edit day shortcut.
+
+New js file created /
+
+//
+
+Gave the rota app the elite makeover/
+
+modal.js now loads rota-elite.js.
+rota-elite.js gives the rota popup and rota.html iframe a full Elite glass/neon makeover, including tables, rota buttons, modals, search cards, and mobile styling.
+
+Issue with no elite UI yet ? works when uploaded 
+//
+
+RE add pin lock
+
+Added elite-lock.js keypad lock.
+Passkey is 74563.
+Elite tools and calendar export are blocked until the keypad is passed.
+Unlock lasts for the current browser session.
+
+new file/ elite-lock.js
+
+done
+
+//
+
+key pad has elite makeover
+
+//
+
+Elite splash screen
+
+May remove
+
+//
+
+install files and code
+
+//
+
+
+
+
+
+
+

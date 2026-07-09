@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Driver Pay Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    
+.header > .weekly-quick-view {
+  order: 3;
+}
+
+.header > .week-tools-tile {
+  order: 4;
+}
+
+.header > .status {
+  order: 5;
+}
+
+    .header-top { justify-content: center; text-align: center; }
+    .brand, .unlock-brand, .brand-text { margin-inline: auto; text-align: center; }
+    .unlock-brand { user-select: none; cursor: pointer; }
+    .header-controls { max-width: 720px; width: 100%; margin-inline: auto; grid-template-columns: 1fr auto auto auto; }
+
+    
+
+    .app-disclaimer {
+      max-width: 720px;
+      margin-inline: auto;
+      color: #bfdbfe;
+      font-size: .78rem;
+      font-weight: 800;
+      line-height: 1.35;
+      text-align: center;
+      padding: 9px 11px;
+      border-radius: 14px;
+      border: 1px solid rgba(147,197,253,.22);
+      background: rgba(37,99,235,.10);
+    }
+
+    
+
+    .week-tools-tile {
+      max-width: 720px;
+      width: 100%;
+      margin-inline: auto;
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(96, 165, 250, .22), transparent 38%),
+        radial-gradient(circle at 92% 10%, rgba(250, 204, 21, .12), transparent 34%),
+        linear-gradient(180deg, rgba(15, 23, 42, .96), rgba(2, 6, 23, .88));
+      border: 1px solid rgba(147, 197, 253, .28);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, .22), 0 0 26px rgba(37, 99, 235, .14), inset 0 1px 0 rgba(255, 255, 255, .08);
+    }
+
+    .week-tools-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .week-tools-title {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .week-tools-title strong {
+      color: #dbeafe;
+      font-size: .9rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      text-shadow: 0 0 12px rgba(96, 165, 250, .65);
+    }
+
+    .week-tools-title span {
+      color: #93c5fd;
+      font-size: .74rem;
+      font-weight: 850;
+    }
+
+    .week-tools-pill {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(250, 204, 21, .12);
+      border: 1px solid rgba(253, 230, 138, .34);
+      color: #fde68a;
+      font-size: .68rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .week-tools-grid {
+      display: grid;
+      grid-template-columns: 1.3fr auto auto auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .week-tools-grid input,
+    .week-tools-grid button,
+    .week-tools-grid select {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(147,197,253,.24);
+      background: #071225;
+      color: #f8fafc;
+      font-weight: 900;
+    }
+
+    .week-tools-grid button {
+      cursor: pointer;
+      background: linear-gradient(180deg, rgba(37, 99, 235, .34), rgba(15, 23, 42, .9));
+    }
+
+    .week-tools-grid #saveWeekBtn {
+      border-color: rgba(34,197,94,.38);
+      background: linear-gradient(180deg, rgba(34,197,94,.30), rgba(20,83,45,.78));
+      color: #dcfce7;
+    }
+
+    .week-tools-grid #loadWeekBtn {
+      border-color: rgba(250,204,21,.38);
+      background: linear-gradient(180deg, rgba(250,204,21,.24), rgba(92,64,8,.70));
+      color: #fef3c7;
+    }
+
+    
+
+    .summary-strip.weekly-quick-view {
+      position: relative;
+      max-width: 720px;
+      width: 100%;
+      margin-inline: auto;
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(96, 165, 250, .22), transparent 38%),
+        radial-gradient(circle at 92% 10%, rgba(34, 197, 94, .14), transparent 34%),
+        linear-gradient(180deg, rgba(15, 23, 42, .96), rgba(2, 6, 23, .88));
+      border: 1px solid rgba(147, 197, 253, .28);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, .24), 0 0 26px rgba(37, 99, 235, .16), inset 0 1px 0 rgba(255, 255, 255, .08);
+      overflow: hidden;
+    }
+
+    .summary-strip.weekly-quick-view::before,
+    .summary-strip.weekly-quick-view::after {
+      content: none !important;
+      display: none !important;
+    }
+
+    .quick-view-head {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      padding: 2px 2px 4px;
+    }
+
+    .quick-view-title {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .quick-view-title strong {
+      color: #dbeafe;
+      font-size: .9rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      text-shadow: 0 0 12px rgba(96, 165, 250, .65);
+    }
+
+    .quick-view-title span {
+      color: #93c5fd;
+      font-size: .74rem;
+      font-weight: 850;
+    }
+
+    .quick-view-pill {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, .12);
+      border: 1px solid rgba(134, 239, 172, .34);
+      color: #bbf7d0;
+      font-size: .68rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .weekly-quick-view .summary-item {
+      min-height: 86px;
+      display: grid;
+      align-content: center;
+      gap: 7px;
+      padding: 12px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 20% 0%, rgba(147, 197, 253, .14), transparent 42%), linear-gradient(180deg, rgba(15, 23, 42, .92), rgba(2, 6, 23, .7));
+      border: 1px solid rgba(148, 163, 184, .16);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06);
+    }
+
+    .weekly-quick-view .summary-label {
+      color: #93c5fd;
+      font-size: .68rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .weekly-quick-view .summary-value {
+      color: #f8fafc;
+      font-size: clamp(1.1rem, 4vw, 1.45rem);
+      font-weight: 1000;
+      line-height: 1;
+      text-shadow: 0 0 12px rgba(96, 165, 250, .34);
+    }
+
+    .weekly-quick-view .summary-item:nth-of-type(2) .summary-value {
+      color: #dcfce7;
+      text-shadow: 0 0 14px rgba(34, 197, 94, .42);
+    }
+
+    .weekly-quick-view .summary-item:last-child .summary-value {
+      color: #fde68a;
+      text-shadow: 0 0 14px rgba(250, 204, 21, .3);
+    }
+
+    #ratesModalBackdrop .large-modal {
+      max-height: min(92dvh, 860px);
+      overflow: auto;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(96, 165, 250, .30), transparent 35%),
+        radial-gradient(circle at 88% 10%, rgba(250, 204, 21, .20), transparent 34%),
+        linear-gradient(180deg, #07101f, #020817) !important;
+      border: 1px solid rgba(147, 197, 253, .40) !important;
+      box-shadow: 0 0 48px rgba(37, 99, 235, .32), inset 0 1px 0 rgba(255, 255, 255, .08) !important;
+    }
+
+    #ratesModalBackdrop .modal-head {
+      padding: 12px;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(147, 197, 253, .22), transparent 42%),
+        linear-gradient(180deg, rgba(15, 23, 42, .94), rgba(2, 6, 23, .70));
+      border: 1px solid rgba(147, 197, 253, .20);
+    }
+
+    #ratesModalTitle {
+      font-size: 1.22rem;
+      font-weight: 1000;
+      color: #f8fafc;
+      text-shadow: 0 0 14px rgba(96, 165, 250, .68);
+    }
+
+    #closeRatesModalBtn {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid rgba(147, 197, 253, .32);
+      background: rgba(15, 23, 42, .74);
+      color: #dbeafe;
+      font-weight: 1000;
+      cursor: pointer;
+    }
+
+    #ratesModalContent {
+      gap: 14px;
+    }
+
+    #ratesModalContent .tracker-section {
+      padding: 12px;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(37, 99, 235, .16), transparent 36%),
+        rgba(15, 23, 42, .56);
+      border: 1px solid rgba(148, 163, 184, .14);
+    }
+
+    #ratesModalContent .tracker-section h3 {
+      margin: 0;
+      font-size: .9rem;
+      font-weight: 1000;
+      color: #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .rates-hero {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .rate-stat-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 98px;
+      display: grid;
+      align-content: center;
+      gap: 7px;
+      padding: 14px;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(147, 197, 253, .18), transparent 44%),
+        linear-gradient(180deg, rgba(15, 23, 42, .98), rgba(2, 6, 23, .92));
+      border: 1px solid rgba(147, 197, 253, .24);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 14px 28px rgba(0, 0, 0, .20);
+    }
+
+    .rate-stat-card::after {
+      content: '';
+      position: absolute;
+      inset: auto 12px 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(96, 165, 250, .72), transparent);
+    }
+
+    .rate-stat-card span {
+      color: #93c5fd;
+      font-size: .72rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .rate-stat-card strong {
+      font-size: clamp(1.24rem, 5vw, 1.75rem);
+      color: #f8fafc;
+      font-weight: 1000;
+      text-shadow: 0 0 14px rgba(96, 165, 250, .42);
+    }
+
+    .rate-stat-card.net strong {
+      color: #dcfce7;
+      text-shadow: 0 0 16px rgba(34, 197, 94, .44);
+    }
+
+    .rate-stat-card.deduct strong {
+      color: #fde68a;
+      text-shadow: 0 0 16px rgba(250, 204, 21, .34);
+    }
+
+    .elite-rate-row {
+      border-radius: 18px !important;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(147, 197, 253, .10), transparent 35%),
+        linear-gradient(180deg, rgba(15, 23, 42, .88), rgba(2, 6, 23, .74)) !important;
+      border-color: rgba(147, 197, 253, .18) !important;
+    }
+
+    .elite-rate-row .tracker-row-mid {
+      color: #f8fafc !important;
+      font-size: 1rem;
+      font-weight: 1000;
+      text-shadow: 0 0 10px rgba(96, 165, 250, .30);
+    }
+
+    .rate-edit-input {
+      width: 100%;
+      min-height: 42px;
+      border-radius: 14px;
+      border: 1px solid rgba(147,197,253,.32);
+      background: #071225;
+      color: #f8fafc;
+      padding: 10px 12px;
+      font-weight: 1000;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .rate-edit-input:focus {
+      outline: 1px solid rgba(96, 165, 250, .78);
+      box-shadow: 0 0 18px rgba(37, 99, 235, .20);
+    }
+
+    .rate-save-inline {
+      width: 100%;
+      min-height: 42px;
+      border-radius: 14px;
+      border: 1px solid rgba(34,197,94,.44);
+      background: linear-gradient(180deg, rgba(34,197,94,.34), rgba(20,83,45,.84));
+      color: #dcfce7;
+      font-weight: 1000;
+      cursor: pointer;
+      box-shadow: 0 0 14px rgba(34, 197, 94, .16);
+    }
+
+    .rate-edit-row .tracker-row-mid,
+    .rate-edit-row .tracker-row-end {
+      display: grid;
+      align-items: center;
+    }
+
+    .deduction-note {
+      color: #dbeafe;
+      font-weight: 850;
+      line-height: 1.45;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(37, 99, 235, .11);
+      border: 1px solid rgba(147, 197, 253, .18);
+    }
+
+    .shell-modal {
+      width: min(560px, 100%);
+      background: radial-gradient(circle at 20% 0%, rgba(37,99,235,.25), transparent 38%), linear-gradient(180deg, #07101f, #020817);
+      border: 1px solid rgba(147,197,253,.35);
+      box-shadow: 0 0 40px rgba(37,99,235,.22);
+    }
+
+    .shell-hero, .shell-learn-content {
+      display: grid;
+      gap: 6px;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(15,23,42,.72);
+      border: 1px solid rgba(147,197,253,.18);
+      text-align: center;
+    }
+
+    .shell-title { font-size: 1.45rem; font-weight: 1000; text-shadow: 0 0 14px rgba(96,165,250,.75); }
+    .shell-sub { color: #93c5fd; font-size: .78rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .shell-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 4px; }
+
+    .shell-action, .shell-learn-card {
+      min-height: 94px;
+      border-radius: 18px;
+      border: 1px solid rgba(147,197,253,.28);
+      background: radial-gradient(circle at 20% 15%, rgba(147,197,253,.16), transparent 35%), linear-gradient(180deg, rgba(15,23,42,.95), rgba(2,6,23,.9));
+      color: #f8fafc;
+      display: grid;
+      gap: 6px;
+      place-items: center;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+    }
+
+    .shell-icon { font-size: 1.35rem; line-height: 1; font-weight: 1000; }
+    .shell-label { font-weight: 1000; font-size: .95rem; }
+    .shell-note { color: #94a3b8; font-size: .72rem; font-weight: 800; line-height: 1.25; }
+    .shell-panel { display: grid; gap: 10px; }
+    .shell-panel.hidden { display: none !important; }
+    .shell-panel-head { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
+    .shell-back { width: auto; padding: 9px 12px; border-radius: 999px; border: 1px solid rgba(147,197,253,.34); background: rgba(37,99,235,.18); color: #dbeafe; font-weight: 900; }
+
+    .day-entry-modal { width: min(720px, 100%); max-height: min(92dvh, 820px); overflow: auto; }
+
+    .day-entry-hero, .day-entry-preview, .day-entry-field {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 20px;
+      background: rgba(15,23,42,.72);
+      border: 1px solid rgba(147,197,253,.16);
+    }
+
+    .day-entry-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .day-entry-field.field-full { grid-column: 1 / -1; }
+    .day-entry-input { width: 100%; min-height: 43px; border-radius: 14px; border: 1px solid rgba(147,197,253,.22); background: #071225; color: #f8fafc; padding: 10px 12px; font-weight: 900; }
+    .day-entry-toggle-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .modal-actions-day { display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; }
+
+    @media (max-width: 620px) {
+      .shell-grid, .day-entry-form-grid, .day-entry-toggle-row, .modal-actions-day, .week-tools-grid, .rates-hero { grid-template-columns: 1fr; }
+
+      .week-tools-head,
+      .quick-view-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .summary-strip.weekly-quick-view {
+        grid-template-columns: 1fr !important;
+      }
+
+      .weekly-quick-view .summary-item {
+        min-height: 74px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-top">
+      <button class="brand unlock-brand" id="appBrandBtn" type="button" aria-haspopup="dialog" aria-controls="shellMenuBackdrop">
+        <div class="brand-text">
+          <div class="logo-main">Member Elite Portal</div>
+          <div class="logo-sub">Press to open the driver portal</div>
+        </div>
+      </button>
+    </div>
+
+    <div class="app-disclaimer">
+      Personal driver pay and pay-in tracker. This is not an official company, depot, payroll, or union service. This app was built and produced for fun only.
+    </div>
+
+    <section class="week-tools-tile" aria-label="Week tools">
+      <div class="week-tools-head">
+        <div class="week-tools-title">
+          <strong>Week tools</strong>
+          <span>Pick, save, and reload weekly records</span>
+        </div>
+        <div class="week-tools-pill">Quick tile</div>
+      </div>
+
+      <div class="week-tools-grid">
+        <input id="weekStartInput" type="date">
+        <button id="prevWeekBtn" type="button">Prev</button>
+        <button id="nextWeekBtn" type="button">Next</button>
+        <button type="button" id="saveWeekBtn">Save</button>
+        <select id="savedWeeksSelect"></select>
+        <button type="button" id="loadWeekBtn">Load</button>
+      </div>
+    </section>
+
+    <div class="summary-strip weekly-quick-view" aria-label="Weekly totals">
+      <div class="quick-view-head">
+        <div class="quick-view-title">
+          <strong>Weekly totals</strong>
+          <span>Current week estimate</span>
+        </div>
+        <div class="quick-view-pill">Personal</div>
+      </div>
+
+      <div class="summary-item">
+        <div class="summary-label">Estimated total</div>
+        <div class="summary-value" id="summaryTotal">£0.00</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">Worked days</div>
+        <div class="summary-value" id="summaryWorked">0</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">Pay in</div>
+        <div class="summary-value" id="summaryPayIn">£0.00</div>
+      </div>
+    </div>
+
+    <div class="status" id="statusMsg"></div>
+  </header>
+
+  <main class="wrap">
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <div id="shellMenuBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal shell-modal" role="dialog" aria-modal="true" aria-labelledby="shellMenuTitle">
+      <div class="modal-head">
+        <div class="modal-title" id="shellMenuTitle">Tools</div>
+        <button id="closeShellMenuBtn" type="button">✕</button>
+      </div>
+
+      <div id="shellHomeView" class="shell-panel">
+        <div class="shell-hero">
+          <div class="shell-title">Driver Pay Tracker</div>
+          <div class="shell-sub">Personal records only</div>
+        </div>
+
+        <div class="shell-grid">
+          <button class="shell-action" type="button" data-shell-action="learn">
+            <span class="shell-icon">📘</span>
+            <span class="shell-label">Notes</span>
+            <span class="shell-note">General information and reminders</span>
+          </button>
+
+          <button class="shell-action" type="button" data-shell-action="rates">
+            <span class="shell-icon">£</span>
+            <span class="shell-label">Rates</span>
+            <span class="shell-note">Rates and weekly estimate</span>
+          </button>
+
+          <button class="shell-action" type="button" data-shell-action="insight">
+            <span class="shell-icon">£</span>
+            <span class="shell-label">Pay-in</span>
+            <span class="shell-note">Track fares and cleared amounts</span>
+          </button>
+
+          <button class="shell-action" type="button" data-shell-action="tracker">
+            <span class="shell-icon">💷</span>
+            <span class="shell-label">Weekly summary</span>
+            <span class="shell-note">Weekly pay breakdown</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="shellLearnView" class="shell-panel hidden">
+        <div class="shell-panel-head">
+          <button class="shell-back" type="button" data-shell-back>← Back</button>
+          <div class="shell-section-title">📘 Notes</div>
+        </div>
+
+        <div class="shell-grid">
+          <button class="shell-learn-card" type="button" data-learn-page="rules_ot">
+            <span class="shell-icon">⏱</span>
+            <span class="shell-label">Overtime notes</span>
+            <span class="shell-note">Basic overtime tracking reminders</span>
+          </button>
+
+          <button class="shell-learn-card" type="button" data-learn-page="pay_basics">
+            <span class="shell-icon">💷</span>
+            <span class="shell-label">Pay basics</span>
+            <span class="shell-note">Duty pay, overtime and pay-in</span>
+          </button>
+
+          <button class="shell-learn-card" type="button" data-learn-page="leave_sick">
+            <span class="shell-icon">🌴</span>
+            <span class="shell-label">Leave and sick</span>
+            <span class="shell-note">Leave and sick day notes</span>
+          </button>
+
+          <button class="shell-learn-card" type="button" data-learn-page="support_notes">
+            <span class="shell-icon">🚨</span>
+            <span class="shell-label">Support notes</span>
+            <span class="shell-note">General workplace support reminders</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="shellLearnPageView" class="shell-panel hidden">
+        <div class="shell-panel-head">
+          <button class="shell-back" type="button" data-shell-learn-back>← Topics</button>
+          <div class="shell-section-title" id="shellLearnPageTitle">Topic</div>
+        </div>
+        <div class="shell-learn-content" id="shellLearnPageContent"></div>
+      </div>
+
+      <button id="shellCloseBottomBtn" class="primary shell-close" type="button">Close</button>
+    </div>
+  </div>
+
+  <div id="trackerModalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal large-modal" role="dialog" aria-modal="true" aria-labelledby="trackerModalTitle">
+      <div class="modal-head">
+        <div class="modal-title" id="trackerModalTitle">Weekly summary</div>
+        <button id="closeTrackerModalBtn" type="button">✕</button>
+      </div>
+      <div id="trackerModalContent" class="tracker-content"></div>
+    </div>
+  </div>
+
+  <div id="ratesModalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal large-modal" role="dialog" aria-modal="true" aria-labelledby="ratesModalTitle">
+      <div class="modal-head">
+        <div class="modal-title" id="ratesModalTitle">Rates</div>
+        <button id="closeRatesModalBtn" type="button" onclick="closeRates()">✕</button>
+      </div>
+      <div id="ratesModalContent" class="tracker-content"></div>
+    </div>
+  </div>
+
+  <div id="rateModalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rateTitle">
+      <div class="modal-head">
+        <div class="modal-title" id="rateTitle">Update value</div>
+        <button id="closeRateModalBtn" type="button">✕</button>
+      </div>
+      <div class="row">
+        <label id="rateLabel" for="rateInput">Rate</label>
+        <input id="rateInput" type="number" min="0" step="0.01">
+      </div>
+      <div class="actions">
+        <button type="button" onclick="closeRateModal()">Cancel</button>
+        <button id="saveRateBtn" type="button" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dayModalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal day-entry-modal" role="dialog" aria-modal="true" aria-labelledby="dayModalTitle">
+      <div class="modal-head">
+        <div class="modal-title" id="dayModalTitle">Day entry</div>
+        <button id="closeModalBtn" type="button">✕</button>
+      </div>
+
+      <div class="day-entry-hero">
+        <div class="day-entry-title">
+          <strong>Day details</strong>
+          <span>Edit this day</span>
+        </div>
+        <div class="modal-date-chip" id="modalDateLabel">Date</div>
+      </div>
+
+      <div class="day-entry-preview">
+        <div class="day-entry-preview-main" id="modalDutyInfo">Select a duty or keep this as RD / Day off.</div>
+        <div class="day-entry-preview-sub" id="modalDutyPay">Duty pay: £0.00</div>
+        <div class="day-entry-total" id="modalDayTotal">£0.00</div>
+      </div>
+
+      <select id="workedSelect" hidden>
+        <option value="false">RD / Day off</option>
+        <option value="true">Worked duty</option>
+      </select>
+
+      <div class="day-entry-form-grid">
+        <div class="day-entry-field field-full">
+          <label for="dutySelect">Duty board</label>
+          <select id="dutySelect" class="day-entry-input"></select>
+        </div>
+
+        <div class="day-entry-field field-full" id="paidAdjustSection">
+          <span class="field-label">Paid time adjustment</span>
+          <div class="day-entry-form-grid">
+            <div class="day-entry-field">
+              <label for="adjustStartInput">Actual start</label>
+              <input id="adjustStartInput" class="day-entry-input" type="time">
+            </div>
+            <div class="day-entry-field">
+              <label for="adjustFinishInput">Actual finish</label>
+              <input id="adjustFinishInput" class="day-entry-input" type="time">
+            </div>
+          </div>
+          <div class="adjust-preview" id="adjustPreview">No paid time deduction.</div>
+        </div>
+
+        <div class="day-entry-field">
+          <label for="otMinutesInput">Overtime</label>
+          <input id="otMinutesInput" class="day-entry-input" type="text" inputmode="decimal" placeholder="minutes or h.mm">
+        </div>
+
+        <div class="day-entry-field">
+          <label for="manualMinutesInput">Manual paid time</label>
+          <input id="manualMinutesInput" class="day-entry-input" type="text" inputmode="decimal" placeholder="minutes or h.mm">
+        </div>
+
+        <div class="day-entry-field">
+          <label for="payInInput">Pay-in / fares</label>
+          <input id="payInInput" class="day-entry-input" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
+
+        <div class="day-entry-field">
+          <span class="field-label">Flags</span>
+          <div class="day-entry-toggle-row">
+            <div class="day-entry-flag">
+              <label for="bankHolidaySelect">Bank holiday</label>
+              <select id="bankHolidaySelect" class="day-entry-input">
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
+            </div>
+
+            <div class="day-entry-flag">
+              <label for="sickSelect">Sick</label>
+              <select id="sickSelect" class="day-entry-input">
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
+            </div>
+
+            <div class="day-entry-flag">
+              <label>Type</label>
+              <div class="day-entry-input" aria-hidden="true">Personal record</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions-day">
+        <button id="cancelEditBtn" type="button">Cancel</button>
+        <button id="saveEditBtn" type="button" class="primary">Save day</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="modules/date.js"></script>
+  <script src="data/duties.js"></script>
+  <script src="modal.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    function openRates() {
+      const s = calcSummary();
+      const deductions = Number(s.tax || 0) + Number(s.social || 0);
+
+      ratesModalContent.innerHTML = `
+        <div class="tracker-section">
+          <div class="rates-hero">
+            <div class="rate-stat-card">
+              <span>Gross estimate</span>
+              <strong>${money(s.grossPay)}</strong>
+            </div>
+            <div class="rate-stat-card net">
+              <span>Net estimate</span>
+              <strong>${money(s.netPay)}</strong>
+            </div>
+            <div class="rate-stat-card deduct">
+              <span>Deductions</span>
+              <strong>${money(deductions)}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="tracker-section">
+          <h3>Hourly rates</h3>
+          <div class="tracker-list">
+            <div class="tracker-row elite-rate-row">
+              <div class="tracker-row-main">Basic rate</div>
+              <div class="tracker-row-mid">${money(state.rates.basic)}</div>
+              <div class="tracker-row-end">per hour</div>
+            </div>
+            <div class="tracker-row elite-rate-row">
+              <div class="tracker-row-main">Overtime rate</div>
+              <div class="tracker-row-mid">${money(state.rates.ot)}</div>
+              <div class="tracker-row-end">per hour</div>
+            </div>
+            <div class="tracker-row elite-rate-row">
+              <div class="tracker-row-main">Sunday rate</div>
+              <div class="tracker-row-mid">${money(state.rates.sunday)}</div>
+              <div class="tracker-row-end">per hour</div>
+            </div>
+            <div class="tracker-row elite-rate-row">
+              <div class="tracker-row-main">Bank Holiday rate</div>
+              <div class="tracker-row-mid">${money(state.rates.basic * 2)}</div>
+              <div class="tracker-row-end">2× basic</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tracker-section">
+          <h3>Editable deductions</h3>
+          <div class="deduction-note">
+            Change your personal tax and social payment percentages here. These are saved locally and update the weekly estimate.
+          </div>
+          <div class="tracker-list">
+            <div class="tracker-row rate-edit-row elite-rate-row">
+              <div class="tracker-row-main">Tax payment</div>
+              <div class="tracker-row-mid">
+                <input id="taxRateInput" class="rate-edit-input" type="number" min="0" step="0.01" value="${state.rates.tax}">
+              </div>
+              <div class="tracker-row-end">
+                <button class="rate-save-inline" type="button" data-save-rate="tax">Save %</button>
+              </div>
+            </div>
+
+            <div class="tracker-row rate-edit-row elite-rate-row">
+              <div class="tracker-row-main">Social payment</div>
+              <div class="tracker-row-mid">
+                <input id="socialRateInput" class="rate-edit-input" type="number" min="0" step="0.01" value="${state.rates.social}">
+              </div>
+              <div class="tracker-row-end">
+                <button class="rate-save-inline" type="button" data-save-rate="social">Save %</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tracker-section">
+          <h3>Weekly preview</h3>
+          <div class="tracker-list">
+            <div class="tracker-row elite-rate-row">
+              <div class="tracker-row-main">Gross pay</div>
+              <div class="tracker-row-mid">${money(s.grossPay)}</div>
+              <div class="tracker-row-end">before deductions</div>
+            </div>
+            <div class="tracker-row elite-rate-row">
+              <div class="tracker-row-main">Tax</div>
+              <div class="tracker-row-mid">${money(s.tax)}</div>
+              <div class="tracker-row-end">${state.rates.tax}%</div>
+            </div>
+            <div class="tracker-row elite-rate-row">
+              <div class="tracker-row-main">Social</div>
+              <div class="tracker-row-mid">${money(s.social)}</div>
+              <div class="tracker-row-end">${state.rates.social}%</div>
+            </div>
+            <div class="tracker-row elite-rate-row">
+              <div class="tracker-row-main">Estimated net pay</div>
+              <div class="tracker-row-mid">${money(s.netPay)}</div>
+              <div class="tracker-row-end">weekly</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      ratesModalBackdrop.classList.add('open');
+      ratesModalBackdrop.setAttribute('aria-hidden', 'false');
+    }
+
+    document.addEventListener('click', event => {
+      const saveRateButton = event.target.closest?.('[data-save-rate]');
+      if (!saveRateButton) return;
+
+      const type = saveRateButton.dataset.saveRate;
+      const input = document.getElementById(type === 'tax' ? 'taxRateInput' : 'socialRateInput');
+      const value = Number.parseFloat(input?.value || '');
+
+      if (!Number.isFinite(value) || value < 0) {
+        setStatus('Enter a valid percentage');
+        return;
+      }
+
+      state.rates[type] = value;
+      saveState(true);
+      render();
+      openRates();
+      setStatus(`${type === 'tax' ? 'Tax' : 'Social'} payment updated`);
+    });
+
+    const shellBackdrop = document.getElementById('shellMenuBackdrop');
+    const shellOpenBtn = document.getElementById('appBrandBtn');
+    const shellCloseBtn = document.getElementById('closeShellMenuBtn');
+    const shellCloseBottomBtn = document.getElementById('shellCloseBottomBtn');
+    const shellHomeView = document.getElementById('shellHomeView');
+    const shellLearnView = document.getElementById('shellLearnView');
+    const shellLearnPageView = document.getElementById('shellLearnPageView');
+    const shellLearnPageTitle = document.getElementById('shellLearnPageTitle');
+    const shellLearnPageContent = document.getElementById('shellLearnPageContent');
+
+    const SHELL_LEARN_PAGES = {
+      rules_ot: {
+        title: '⏱ Overtime notes',
+        content: `<strong>Overtime reminder:</strong><br><br>Check your official agreement, rota and payroll guidance. This page is only a personal estimate and should not replace official records.`
+      },
+      pay_basics: {
+        title: '💷 Pay basics',
+        content: `<strong>Check official duties before finalising.</strong><br><br>• Add each duty worked.<br>• Add overtime in h.mm or minutes format.<br>• Add manual paid time where needed.<br>• Keep pay-in/fares separate from wage totals.`
+      },
+      leave_sick: {
+        title: '🌴 Leave and sick',
+        content: `<strong>Planner basics:</strong><br><br>• Sick days show as SK and remove normal duty pay for that day.<br>• Annual leave shows as AL where marked.<br>• Selected AL/SK days override normal duty tiles for that date.`
+      },
+      support_notes: {
+        title: '🚨 Support notes',
+        content: `<strong>General support reminder:</strong><br><br>For workplace, pay, rota or disciplinary concerns, use your official employer, payroll, depot or representative channels.`
+      }
+    };
+
+    function showShellHome() {
+      shellHomeView.classList.remove('hidden');
+      shellLearnView.classList.add('hidden');
+      shellLearnPageView.classList.add('hidden');
+    }
+
+    function showShellLearn() {
+      shellHomeView.classList.add('hidden');
+      shellLearnView.classList.remove('hidden');
+      shellLearnPageView.classList.add('hidden');
+    }
+
+    function showShellLearnPage(key) {
+      const page = SHELL_LEARN_PAGES[key];
+      if (!page) return;
+      shellLearnPageTitle.textContent = page.title;
+      shellLearnPageContent.innerHTML = page.content;
+      shellHomeView.classList.add('hidden');
+      shellLearnView.classList.add('hidden');
+      shellLearnPageView.classList.remove('hidden');
+    }
+
+    function openShellMenu() {
+      showShellHome();
+      shellBackdrop.classList.add('open');
+      shellBackdrop.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeShellMenu() {
+      shellBackdrop.classList.remove('open');
+      shellBackdrop.setAttribute('aria-hidden', 'true');
+    }
+
+    function simplifyDynamicLabels() {
+      const replacements = [
+        ['Pay-in Tracker Pro', 'Pay-in tracker'],
+        ['Weekly Tracker', 'Weekly summary'],
+        ['£ Pay Rates', 'Rates']
+      ];
+
+      const nodes = document.querySelectorAll(
+        '#trackerModalTitle, #ratesModalTitle, #trackerModalContent h3, #ratesModalContent h3'
+      );
+
+      nodes.forEach(node => {
+        let nextText = node.textContent;
+
+        replacements.forEach(([from, to]) => {
+          nextText = nextText.replace(from, to);
+        });
+
+        if (node.textContent !== nextText) {
+          node.textContent = nextText;
+        }
+      });
+    }
+
+    shellOpenBtn.addEventListener('click', openShellMenu);
+    shellCloseBtn.addEventListener('click', closeShellMenu);
+    shellCloseBottomBtn.addEventListener('click', closeShellMenu);
+
+    shellBackdrop.addEventListener('click', event => {
+      if (event.target === shellBackdrop) closeShellMenu();
+    });
+
+    document.querySelector('[data-shell-back]').addEventListener('click', showShellHome);
+    document.querySelector('[data-shell-learn-back]').addEventListener('click', showShellLearn);
+
+    document.querySelectorAll('[data-learn-page]').forEach(button => {
+      button.addEventListener('click', () => showShellLearnPage(button.dataset.learnPage));
+    });
+
+    document.querySelectorAll('[data-shell-action]').forEach(button => {
+      button.addEventListener('click', () => {
+        const action = button.dataset.shellAction;
+
+        if (action === 'learn') {
+          showShellLearn();
+          return;
+        }
+
+        closeShellMenu();
+
+        if (action === 'rates' && typeof openRates === 'function') {
+          openRates();
+          setTimeout(simplifyDynamicLabels, 0);
+        }
+
+        if (action === 'insight' && typeof openPayInTracker === 'function') {
+          openPayInTracker();
+          setTimeout(simplifyDynamicLabels, 0);
+        }
+
+        if (action === 'tracker' && typeof openTracker === 'function') {
+          const title = document.getElementById('trackerModalTitle');
+          if (title) title.textContent = 'Weekly summary';
+          openTracker();
+          setTimeout(simplifyDynamicLabels, 0);
+        }
+      });
+    });
+
+    const labelObserver = new MutationObserver(simplifyDynamicLabels);
+    const trackerContent = document.getElementById('trackerModalContent');
+    const ratesContent = document.getElementById('ratesModalContent');
+
+    if (trackerContent) labelObserver.observe(trackerContent, { childList: true, subtree: true });
+    if (ratesContent) labelObserver.observe(ratesContent, { childList: true, subtree: true });
+
+    function syncEliteDayPreview() {
+      const dutySelect = document.getElementById('dutySelect');
+      const workedSelect = document.getElementById('workedSelect');
+      const paidAdjustSection = document.getElementById('paidAdjustSection');
+
+      if (dutySelect && workedSelect) workedSelect.value = dutySelect.value ? 'true' : 'false';
+      if (paidAdjustSection && dutySelect) paidAdjustSection.style.display = dutySelect.value ? 'grid' : 'none';
+      if (typeof updateDayPreview === 'function') updateDayPreview();
+    }
+
+    ['dutySelect', 'otMinutesInput', 'manualMinutesInput', 'bankHolidaySelect', 'sickSelect', 'payInInput', 'adjustStartInput', 'adjustFinishInput']
+      .forEach(id => {
+        const node = document.getElementById(id);
+        if (node) node.addEventListener('input', syncEliteDayPreview);
+        if (node) node.addEventListener('change', syncEliteDayPreview);
+      });
+
+    simplifyDynamicLabels();
+  </script>
+</body>
+</html>

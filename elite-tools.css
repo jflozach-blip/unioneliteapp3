@@ -1,0 +1,239 @@
+#shellMenuBackdrop {
+  background:
+    radial-gradient(circle at 50% 12%, rgba(96, 165, 250, .22), transparent 34%),
+    radial-gradient(circle at 10% 90%, rgba(250, 204, 21, .10), transparent 30%),
+    rgba(0, 0, 0, .72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding: 16px !important;
+}
+
+#shellMenuBackdrop .shell-modal {
+  position: relative;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  width: min(640px, 100%) !important;
+  max-height: calc(100dvh - 32px) !important;
+  margin: auto 0 !important;
+  padding: 18px !important;
+  border-radius: 30px !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(96, 165, 250, .34), transparent 34%),
+    radial-gradient(circle at 88% 10%, rgba(250, 204, 21, .16), transparent 32%),
+    linear-gradient(180deg, rgba(7, 16, 31, .98), rgba(2, 6, 23, .96)) !important;
+  border: 1px solid rgba(191, 219, 254, .42) !important;
+  box-shadow:
+    0 0 55px rgba(37, 99, 235, .34),
+    0 24px 70px rgba(0, 0, 0, .52),
+    inset 0 1px 0 rgba(255, 255, 255, .12) !important;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
+#shellMenuBackdrop .shell-modal::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(147, 197, 253, .18) 35%, transparent 65%),
+    radial-gradient(circle at 50% -10%, rgba(255, 255, 255, .16), transparent 30%);
+  animation: eliteToolsGlow 5s ease-in-out infinite;
+}
+
+#shellMenuBackdrop .modal-head {
+  position: relative;
+  z-index: 1;
+  padding: 13px 14px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(147, 197, 253, .20), transparent 42%),
+    linear-gradient(180deg, rgba(15, 23, 42, .92), rgba(2, 6, 23, .70));
+  border: 1px solid rgba(147, 197, 253, .26);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+#shellMenuTitle,
+#shellLearnPageTitle,
+#shellMenuBackdrop .shell-section-title {
+  color: #f8fafc;
+  font-weight: 1000;
+  letter-spacing: .04em;
+  text-shadow: 0 0 16px rgba(96, 165, 250, .75);
+}
+
+#closeShellMenuBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(147, 197, 253, .36);
+  background: rgba(15, 23, 42, .78);
+  color: #dbeafe;
+  font-weight: 1000;
+  box-shadow: 0 0 18px rgba(37, 99, 235, .20);
+}
+
+#shellMenuBackdrop .shell-panel {
+  position: relative;
+  z-index: 1;
+}
+
+#shellMenuBackdrop .shell-hero,
+#shellMenuBackdrop .shell-learn-content {
+  border-radius: 24px;
+  padding: 16px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(96, 165, 250, .20), transparent 38%),
+    linear-gradient(180deg, rgba(15, 23, 42, .86), rgba(2, 6, 23, .68));
+  border: 1px solid rgba(147, 197, 253, .24);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+#shellMenuBackdrop .shell-title {
+  font-size: clamp(1.55rem, 6vw, 2.1rem);
+  color: #f8fafc;
+  font-weight: 1000;
+  text-shadow:
+    0 0 16px rgba(96, 165, 250, .85),
+    0 0 34px rgba(37, 99, 235, .44);
+}
+
+#shellMenuBackdrop .shell-sub {
+  color: #bfdbfe;
+  font-weight: 1000;
+  letter-spacing: .12em;
+}
+
+#shellMenuBackdrop .shell-grid {
+  gap: 12px;
+}
+
+#shellMenuBackdrop .shell-action,
+#shellMenuBackdrop .shell-learn-card {
+  min-height: 118px;
+  border-radius: 24px;
+  padding: 16px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(147, 197, 253, .22), transparent 38%),
+    radial-gradient(circle at 92% 90%, rgba(250, 204, 21, .08), transparent 34%),
+    linear-gradient(180deg, rgba(15, 23, 42, .98), rgba(2, 6, 23, .92));
+  border: 1px solid rgba(147, 197, 253, .30);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, .24),
+    inset 0 1px 0 rgba(255, 255, 255, .09);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+#shellMenuBackdrop .shell-action::after,
+#shellMenuBackdrop .shell-learn-card::after {
+  content: '';
+  position: absolute;
+  inset: auto 16px 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, .78), transparent);
+}
+
+#shellMenuBackdrop .shell-action:hover,
+#shellMenuBackdrop .shell-learn-card:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.12) saturate(1.08);
+  border-color: rgba(191, 219, 254, .62);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, .34),
+    0 0 28px rgba(37, 99, 235, .28),
+    inset 0 1px 0 rgba(255, 255, 255, .14);
+}
+
+#shellMenuBackdrop .shell-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  font-size: 1.45rem;
+  background: rgba(37, 99, 235, .18);
+  border: 1px solid rgba(147, 197, 253, .28);
+  box-shadow: 0 0 18px rgba(96, 165, 250, .22);
+}
+
+#shellMenuBackdrop .shell-label {
+  color: #f8fafc;
+  font-size: 1rem;
+  font-weight: 1000;
+  text-shadow: 0 0 10px rgba(96, 165, 250, .38);
+}
+
+#shellMenuBackdrop .shell-note {
+  color: #93c5fd;
+  font-weight: 850;
+  line-height: 1.3;
+}
+
+#shellMenuBackdrop .shell-back,
+#shellCloseBottomBtn {
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(147, 197, 253, .32);
+  background:
+    linear-gradient(180deg, rgba(37, 99, 235, .32), rgba(15, 23, 42, .86));
+  color: #dbeafe;
+  font-weight: 1000;
+  box-shadow: 0 0 18px rgba(37, 99, 235, .18);
+}
+
+#shellCloseBottomBtn {
+  position: relative;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(34, 197, 94, .34), rgba(20, 83, 45, .82)) !important;
+  border-color: rgba(134, 239, 172, .42) !important;
+  color: #dcfce7 !important;
+}
+
+@keyframes eliteToolsGlow {
+  0%, 100% {
+    opacity: .58;
+    transform: translateX(-2%);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateX(2%);
+  }
+}
+
+@media (max-width: 680px) {
+  #shellMenuBackdrop {
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    overflow-y: hidden !important;
+  }
+
+  #shellMenuBackdrop .shell-modal {
+    width: 100% !important;
+    max-height: 92dvh !important;
+    margin: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 30px 30px 0 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+  }
+
+  #shellMenuBackdrop .shell-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  #shellMenuBackdrop .shell-action,
+  #shellMenuBackdrop .shell-learn-card {
+    min-height: 96px;
+  }
+}
