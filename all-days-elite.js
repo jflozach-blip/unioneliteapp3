@@ -37,20 +37,35 @@
         background:
           radial-gradient(circle at 50% 0%, rgba(251, 146, 60, .26), transparent 54%),
           linear-gradient(180deg, rgba(154, 52, 18, .42), rgba(2, 6, 23, .84)) !important;
+      }
+
+      #allDaysQuickMini .all-days-mini-day.deducted-day:not(.sick-day):not(.annual-leave):not(.overtime-day) {
+        border-color: rgba(196, 181, 253, .76) !important;
+        background:
+          radial-gradient(circle at 50% 0%, rgba(196, 181, 253, .26), transparent 54%),
+          linear-gradient(180deg, rgba(76, 29, 149, .42), rgba(2, 6, 23, .84)) !important;
         box-shadow:
-          0 0 16px rgba(251, 146, 60, .34),
-          0 0 30px rgba(250, 204, 21, .12),
+          0 0 16px rgba(167, 139, 250, .30),
           inset 0 1px 0 rgba(255, 255, 255, .10) !important;
       }
 
-      #allDaysQuickMini .quick-ot-symbol {
+      #allDaysQuickMini .quick-ot-symbol,
+      #allDaysQuickMini .quick-deduct-symbol {
         position: absolute;
         top: 4px;
-        right: 5px;
         font-size: .82rem;
         line-height: 1;
-        filter: drop-shadow(0 0 7px rgba(251, 146, 60, .75));
         pointer-events: none;
+      }
+
+      #allDaysQuickMini .quick-ot-symbol {
+        right: 5px;
+        filter: drop-shadow(0 0 7px rgba(251, 146, 60, .75));
+      }
+
+      #allDaysQuickMini .quick-deduct-symbol {
+        left: 5px;
+        filter: drop-shadow(0 0 7px rgba(167, 139, 250, .75));
       }
 
       #grid .tile.overtime .day-name::after,
@@ -61,15 +76,27 @@
         filter: drop-shadow(0 0 8px rgba(251, 146, 60, .72));
       }
 
+      #grid .tile.deducted-time .day-name::before,
+      #allDaysQuickModalGrid .tile.deducted-time .day-name::before {
+        content: '⏱ ';
+        color: #c4b5fd;
+        font-size: .95em;
+        filter: drop-shadow(0 0 8px rgba(167, 139, 250, .72));
+      }
+
+      #allDaysQuickModalGrid .tile.deducted-time {
+        border-color: rgba(196, 181, 253, .62) !important;
+        box-shadow:
+          0 0 22px rgba(167, 139, 250, .20),
+          0 14px 30px rgba(0, 0, 0, .28),
+          inset 0 1px 0 rgba(255, 255, 255, .10) !important;
+      }
+
       #allDaysQuickMini .all-days-mini-day.manual-time {
         border-color: rgba(216, 180, 254, .72) !important;
         background:
           radial-gradient(circle at 50% 0%, rgba(216, 180, 254, .30), transparent 54%),
           linear-gradient(180deg, rgba(88, 28, 135, .48), rgba(2, 6, 23, .82)) !important;
-        box-shadow:
-          0 0 16px rgba(168, 85, 247, .34),
-          0 0 30px rgba(250, 204, 21, .10),
-          inset 0 1px 0 rgba(255, 255, 255, .10) !important;
       }
 
       #allDaysQuickMini .all-days-mini-day.manual-time strong::after {
@@ -82,10 +109,6 @@
         background:
           radial-gradient(circle at 50% 0%, rgba(147, 197, 253, .34), transparent 56%),
           linear-gradient(180deg, rgba(30, 64, 175, .62), rgba(2, 6, 23, .86)) !important;
-        box-shadow:
-          0 0 18px rgba(96, 165, 250, .42),
-          0 0 34px rgba(37, 99, 235, .20),
-          inset 0 1px 0 rgba(255, 255, 255, .12) !important;
       }
 
       #allDaysQuickMini .all-days-mini-day.sick-day strong::after {
@@ -98,10 +121,6 @@
           radial-gradient(circle at 50% -10%, rgba(253, 224, 71, .42), transparent 42%),
           radial-gradient(circle at 50% 30%, rgba(251, 146, 60, .28), transparent 52%),
           linear-gradient(180deg, rgba(194, 65, 12, .56), rgba(88, 28, 135, .42), rgba(2, 6, 23, .84)) !important;
-        box-shadow:
-          0 0 18px rgba(250, 204, 21, .36),
-          0 0 34px rgba(251, 146, 60, .18),
-          inset 0 1px 0 rgba(255, 255, 255, .14) !important;
       }
 
       #allDaysQuickMini .all-days-mini-day.annual-leave strong::after {
@@ -120,6 +139,16 @@
         margin-top: 6px;
         color: #fed7aa;
         font-weight: 1000;
+      }
+
+      .paid-adjust-reset-btn {
+        min-height: 42px;
+        border-radius: 14px;
+        border: 1px solid rgba(251, 146, 60, .42);
+        background: linear-gradient(180deg, rgba(251, 146, 60, .24), rgba(124, 45, 18, .78));
+        color: #ffedd5;
+        font-weight: 1000;
+        cursor: pointer;
       }
 
       #allDaysQuickModalBackdrop {
@@ -157,6 +186,7 @@
     return {
       manual: Number(entry.manualMinutes || 0) > 0,
       overtime: Number(entry.otMinutes || 0) > 0,
+      deducted: Number(entry.deductMinutes || 0) > 0,
       sick: !!entry.sick || (Array.isArray(state?.sickDates) && state.sickDates.includes(iso)),
       leave: Array.isArray(state?.annualLeaveDates) && state.annualLeaveDates.includes(iso)
     };
@@ -183,20 +213,79 @@
     return `${hours}:${String(mins).padStart(2, '0')}`;
   }
 
-  function calculateAdjustExtraOvertimeMinutes() {
+  function getSelectedDuty() {
     const dayIndex = state?.currentDayIndex;
     const dutySelect = document.getElementById('dutySelect');
     const bankHolidaySelect = document.getElementById('bankHolidaySelect');
-    const adjustStartInput = document.getElementById('adjustStartInput');
-    const adjustFinishInput = document.getElementById('adjustFinishInput');
 
-    if (!Number.isInteger(dayIndex) || !dutySelect?.value || typeof findDuty !== 'function') return 0;
+    if (!Number.isInteger(dayIndex) || !dutySelect?.value || typeof findDuty !== 'function') return null;
 
     const isBankHoliday = typeof isBankHolidayDay === 'function' &&
       isBankHolidayDay(dayIndex) &&
       bankHolidaySelect?.value === 'true';
 
-    const duty = findDuty(dayIndex, dutySelect.value, isBankHoliday);
+    return findDuty(dayIndex, dutySelect.value, isBankHoliday);
+  }
+
+  function resetOvertimeField(clearValue = true) {
+    const otInput = document.getElementById('otMinutesInput');
+    if (!otInput) return;
+
+    autoOvertimeSyncing = true;
+    if (clearValue) otInput.value = '';
+    otInput.dataset.adjustAutoOvertimeMinutes = '0';
+    otInput.classList.remove('auto-adjusted');
+    autoOvertimeSyncing = false;
+
+    writeAutoOvertimeNote(0);
+  }
+
+  function resetManualPaidTimeField() {
+    const manualInput = document.getElementById('manualMinutesInput');
+    if (manualInput) manualInput.value = '';
+  }
+
+  function resetPaidAdjustmentToDutyDefaults({ clearManualPaidTime = false, recalculateOvertime = true } = {}) {
+    const duty = getSelectedDuty();
+    const adjustStartInput = document.getElementById('adjustStartInput');
+    const adjustFinishInput = document.getElementById('adjustFinishInput');
+
+    if (duty) {
+      if (adjustStartInput) adjustStartInput.value = duty.start || '';
+      if (adjustFinishInput) adjustFinishInput.value = duty.finish || '';
+    } else {
+      if (adjustStartInput) adjustStartInput.value = '';
+      if (adjustFinishInput) adjustFinishInput.value = '';
+    }
+
+    resetOvertimeField(true);
+    if (clearManualPaidTime) resetManualPaidTimeField();
+
+    if (typeof updateDayPreview === 'function') setTimeout(updateDayPreview, 0);
+    if (recalculateOvertime) setTimeout(syncAutoOvertimeFromPaidAdjustment, 0);
+  }
+
+  function ensurePaidAdjustResetButton() {
+    const section = document.getElementById('paidAdjustSection');
+    const preview = document.getElementById('adjustPreview');
+
+    if (!section || document.getElementById('resetPaidAdjustBtn')) return;
+
+    const button = document.createElement('button');
+    button.id = 'resetPaidAdjustBtn';
+    button.className = 'paid-adjust-reset-btn';
+    button.type = 'button';
+    button.textContent = '↻ Reset actual start / finish';
+
+    if (preview) preview.insertAdjacentElement('beforebegin', button);
+    else section.appendChild(button);
+  }
+
+  function calculateAdjustExtraOvertimeMinutes() {
+    const duty = getSelectedDuty();
+    const adjustStartInput = document.getElementById('adjustStartInput');
+    const adjustFinishInput = document.getElementById('adjustFinishInput');
+
     if (!duty) return 0;
 
     const dutyStart = parseClockMinutes(duty.start);
@@ -232,6 +321,8 @@
   function syncAutoOvertimeFromPaidAdjustment() {
     if (autoOvertimeSyncing) return;
 
+    ensurePaidAdjustResetButton();
+
     const otInput = document.getElementById('otMinutesInput');
     if (!otInput || typeof parseTime !== 'function') return;
 
@@ -261,33 +352,72 @@
     document.addEventListener('input', event => {
       if (event.target?.id === 'otMinutesInput' && !autoOvertimeSyncing) {
         event.target.dataset.adjustAutoOvertimeMinutes = '0';
-        setTimeout(syncAutoOvertimeFromPaidAdjustment, 0);
         return;
       }
 
       if (event.target?.id === 'adjustStartInput' || event.target?.id === 'adjustFinishInput') {
+        resetOvertimeField(true);
         setTimeout(syncAutoOvertimeFromPaidAdjustment, 0);
       }
     }, true);
 
     document.addEventListener('change', event => {
-      if (
-        event.target?.id === 'adjustStartInput' ||
-        event.target?.id === 'adjustFinishInput' ||
-        event.target?.id === 'dutySelect' ||
-        event.target?.id === 'bankHolidaySelect'
-      ) {
+      if (event.target?.id === 'dutySelect' || event.target?.id === 'bankHolidaySelect') {
+        setTimeout(() => {
+          resetPaidAdjustmentToDutyDefaults({
+            clearManualPaidTime: true,
+            recalculateOvertime: true
+          });
+        }, 0);
+        return;
+      }
+
+      if (event.target?.id === 'adjustStartInput' || event.target?.id === 'adjustFinishInput') {
+        resetOvertimeField(true);
         setTimeout(syncAutoOvertimeFromPaidAdjustment, 0);
       }
     }, true);
 
     document.addEventListener('click', event => {
+      if (event.target.closest?.('#resetPaidAdjustBtn')) {
+        event.preventDefault();
+        event.stopPropagation();
+        resetPaidAdjustmentToDutyDefaults({
+          clearManualPaidTime: false,
+          recalculateOvertime: true
+        });
+        if (typeof setStatus === 'function') setStatus('Actual start / finish reset');
+        return;
+      }
+
       if (event.target.closest?.('#saveEditBtn')) syncAutoOvertimeFromPaidAdjustment();
 
       if (event.target.closest?.('#grid .tile, #allDaysQuickModalGrid .tile, #allDaysQuickMini .all-days-mini-day')) {
-        setTimeout(syncAutoOvertimeFromPaidAdjustment, 120);
+        setTimeout(() => {
+          ensurePaidAdjustResetButton();
+          syncAutoOvertimeFromPaidAdjustment();
+        }, 120);
       }
     }, true);
+  }
+
+  function decorateDayTiles() {
+    const gridTiles = document.querySelectorAll('#grid .tile');
+    const modalTiles = document.querySelectorAll('#allDaysQuickModalGrid .tile');
+
+    gridTiles.forEach((tile, index) => {
+      const flags = getDayFlags(index);
+      tile.classList.toggle('deducted-time', flags.deducted);
+    });
+
+    modalTiles.forEach((tile, fallbackIndex) => {
+      const index = Number.isInteger(Number(tile.dataset.quickDayIndex))
+        ? Number(tile.dataset.quickDayIndex)
+        : fallbackIndex;
+
+      const flags = getDayFlags(index);
+      tile.classList.toggle('deducted-time', flags.deducted);
+    });
   }
 
   function decorateQuickViewDays() {
@@ -298,19 +428,29 @@
 
       day.classList.toggle('manual-time', flags.manual && !flags.sick && !flags.leave);
       day.classList.toggle('overtime-day', flags.overtime);
+      day.classList.toggle('deducted-day', flags.deducted);
       day.classList.toggle('sick-day', flags.sick);
       day.classList.toggle('annual-leave', !flags.sick && flags.leave);
 
-      let symbol = day.querySelector('.quick-ot-symbol');
-      if (flags.overtime && !symbol) {
-        symbol = document.createElement('span');
-        symbol.className = 'quick-ot-symbol';
-        symbol.textContent = '🔥';
-        symbol.setAttribute('aria-hidden', 'true');
-        day.appendChild(symbol);
+      let otSymbol = day.querySelector('.quick-ot-symbol');
+      if (flags.overtime && !otSymbol) {
+        otSymbol = document.createElement('span');
+        otSymbol.className = 'quick-ot-symbol';
+        otSymbol.textContent = '🔥';
+        otSymbol.setAttribute('aria-hidden', 'true');
+        day.appendChild(otSymbol);
       }
+      if (!flags.overtime && otSymbol) otSymbol.remove();
 
-      if (!flags.overtime && symbol) symbol.remove();
+      let deductSymbol = day.querySelector('.quick-deduct-symbol');
+      if (flags.deducted && !deductSymbol) {
+        deductSymbol = document.createElement('span');
+        deductSymbol.className = 'quick-deduct-symbol';
+        deductSymbol.textContent = '⏱';
+        deductSymbol.setAttribute('aria-hidden', 'true');
+        day.appendChild(deductSymbol);
+      }
+      if (!flags.deducted && deductSymbol) deductSymbol.remove();
 
       day.dataset.quickDayIndex = String(index);
       day.setAttribute('role', 'button');
@@ -318,6 +458,8 @@
       day.setAttribute('title', `Open ${day.querySelector('strong')?.textContent || 'day'} editor`);
       day.setAttribute('aria-label', `Open ${day.querySelector('strong')?.textContent || 'day'} editor`);
     });
+
+    decorateDayTiles();
   }
 
   function openFullWeekModal() {
@@ -330,6 +472,7 @@
     setTimeout(() => {
       window.__eliteAllowNextProtectedClick = false;
       decorateQuickViewDays();
+      decorateDayTiles();
     }, 120);
   }
 
@@ -376,6 +519,7 @@
 
       reopenFullWeekModalAfterSave = false;
       decorateQuickViewDays();
+      decorateDayTiles();
       openFullWeekModal();
     }, 180);
   }
@@ -430,7 +574,12 @@
     if (window.__quickViewMiniObserverBound) return;
     window.__quickViewMiniObserverBound = true;
 
-    const observer = new MutationObserver(() => decorateQuickViewDays());
+    const observer = new MutationObserver(() => {
+      decorateQuickViewDays();
+      decorateDayTiles();
+      ensurePaidAdjustResetButton();
+    });
+
     observer.observe(document.body, { childList: true, subtree: true });
   }
 
@@ -440,10 +589,17 @@
     bindAutoOvertimeFromPaidAdjustment();
     observeQuickViewMiniGrid();
     decorateQuickViewDays();
+    decorateDayTiles();
+    ensurePaidAdjustResetButton();
 
     setTimeout(decorateQuickViewDays, 100);
     setTimeout(decorateQuickViewDays, 350);
     setTimeout(decorateQuickViewDays, 900);
+    setTimeout(decorateDayTiles, 100);
+    setTimeout(decorateDayTiles, 350);
+    setTimeout(decorateDayTiles, 900);
+    setTimeout(ensurePaidAdjustResetButton, 350);
+    setTimeout(ensurePaidAdjustResetButton, 900);
   }
 
   if (document.readyState === 'loading') {
