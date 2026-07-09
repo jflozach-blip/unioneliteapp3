@@ -30,6 +30,53 @@
         outline: none;
       }
 
+      #allDaysQuickMini .all-days-mini-day.manual-time {
+        border-color: rgba(216, 180, 254, .72) !important;
+        background:
+          radial-gradient(circle at 50% 0%, rgba(216, 180, 254, .30), transparent 54%),
+          linear-gradient(180deg, rgba(88, 28, 135, .48), rgba(2, 6, 23, .82)) !important;
+        box-shadow:
+          0 0 16px rgba(168, 85, 247, .34),
+          0 0 30px rgba(250, 204, 21, .10),
+          inset 0 1px 0 rgba(255, 255, 255, .10) !important;
+      }
+
+      #allDaysQuickMini .all-days-mini-day.manual-time strong::after {
+        content: ' 🛠';
+        color: #fde68a;
+      }
+
+      #allDaysQuickMini .all-days-mini-day.sick-day {
+        border-color: rgba(96, 165, 250, .82) !important;
+        background:
+          radial-gradient(circle at 50% 0%, rgba(147, 197, 253, .34), transparent 56%),
+          linear-gradient(180deg, rgba(30, 64, 175, .62), rgba(2, 6, 23, .86)) !important;
+        box-shadow:
+          0 0 18px rgba(96, 165, 250, .42),
+          0 0 34px rgba(37, 99, 235, .20),
+          inset 0 1px 0 rgba(255, 255, 255, .12) !important;
+      }
+
+      #allDaysQuickMini .all-days-mini-day.sick-day strong::after {
+        content: ' 💙';
+      }
+
+      #allDaysQuickMini .all-days-mini-day.annual-leave {
+        border-color: rgba(251, 191, 36, .84) !important;
+        background:
+          radial-gradient(circle at 50% -10%, rgba(253, 224, 71, .42), transparent 42%),
+          radial-gradient(circle at 50% 30%, rgba(251, 146, 60, .28), transparent 52%),
+          linear-gradient(180deg, rgba(194, 65, 12, .56), rgba(88, 28, 135, .42), rgba(2, 6, 23, .84)) !important;
+        box-shadow:
+          0 0 18px rgba(250, 204, 21, .36),
+          0 0 34px rgba(251, 146, 60, .18),
+          inset 0 1px 0 rgba(255, 255, 255, .14) !important;
+      }
+
+      #allDaysQuickMini .all-days-mini-day.annual-leave strong::after {
+        content: ' 🌅';
+      }
+
       #allDaysQuickModalBackdrop {
         background:
           radial-gradient(circle at 50% 10%, rgba(96, 165, 250, .24), transparent 34%),
@@ -115,6 +162,38 @@
         transition: transform .16s ease, filter .16s ease, border-color .16s ease, box-shadow .16s ease;
       }
 
+      #allDaysQuickModalGrid .tile.manual {
+        border-color: rgba(216, 180, 254, .68) !important;
+        background:
+          radial-gradient(circle at 16% 0%, rgba(216, 180, 254, .24), transparent 42%),
+          radial-gradient(circle at 92% 10%, rgba(250, 204, 21, .10), transparent 34%),
+          linear-gradient(180deg, rgba(88, 28, 135, .34), rgba(2, 6, 23, .84)) !important;
+      }
+
+      #allDaysQuickModalGrid .tile.sick {
+        border-color: rgba(96, 165, 250, .78) !important;
+        background:
+          radial-gradient(circle at 16% 0%, rgba(147, 197, 253, .28), transparent 42%),
+          linear-gradient(180deg, rgba(30, 64, 175, .46), rgba(2, 6, 23, .84)) !important;
+        box-shadow:
+          0 0 24px rgba(96, 165, 250, .28),
+          0 14px 30px rgba(0, 0, 0, .28),
+          inset 0 1px 0 rgba(255, 255, 255, .10) !important;
+      }
+
+      #allDaysQuickModalGrid .tile.leave {
+        border-color: rgba(251, 191, 36, .78) !important;
+        background:
+          radial-gradient(circle at 18% -4%, rgba(253, 224, 71, .30), transparent 38%),
+          radial-gradient(circle at 86% 8%, rgba(251, 146, 60, .20), transparent 38%),
+          linear-gradient(180deg, rgba(194, 65, 12, .34), rgba(88, 28, 135, .24), rgba(2, 6, 23, .84)) !important;
+        box-shadow:
+          0 0 24px rgba(250, 204, 21, .24),
+          0 0 36px rgba(251, 146, 60, .14),
+          0 14px 30px rgba(0, 0, 0, .28),
+          inset 0 1px 0 rgba(255, 255, 255, .10) !important;
+      }
+
       #allDaysQuickModalGrid .tile:hover,
       #allDaysQuickModalGrid .tile:focus {
         transform: translateY(-3px);
@@ -144,10 +223,33 @@
     document.head.appendChild(style);
   }
 
+  function getDayIso(index) {
+    if (typeof dateFor === 'function' && typeof dateToISO === 'function') {
+      return dateToISO(dateFor(index));
+    }
+    return '';
+  }
+
+  function getDayFlags(index) {
+    const entry = state?.days?.[index] || {};
+    const iso = getDayIso(index);
+
+    return {
+      manual: Number(entry.manualMinutes || 0) > 0,
+      sick: !!entry.sick || (Array.isArray(state?.sickDates) && state.sickDates.includes(iso)),
+      leave: Array.isArray(state?.annualLeaveDates) && state.annualLeaveDates.includes(iso)
+    };
+  }
+
   function decorateQuickViewDays() {
     const days = document.querySelectorAll('#allDaysQuickMini .all-days-mini-day');
 
     days.forEach((day, index) => {
+      const flags = getDayFlags(index);
+
+      day.classList.toggle('manual-time', flags.manual && !flags.sick && !flags.leave);
+      day.classList.toggle('sick-day', flags.sick);
+      day.classList.toggle('annual-leave', !flags.sick && flags.leave);
       day.dataset.quickDayIndex = String(index);
       day.setAttribute('role', 'button');
       day.setAttribute('tabindex', '0');
@@ -165,6 +267,7 @@
 
     setTimeout(() => {
       window.__eliteAllowNextProtectedClick = false;
+      decorateQuickViewDays();
     }, 120);
   }
 
@@ -210,6 +313,7 @@
       if (dayStillOpen) return;
 
       reopenFullWeekModalAfterSave = false;
+      decorateQuickViewDays();
       openFullWeekModal();
     }, 180);
   }
