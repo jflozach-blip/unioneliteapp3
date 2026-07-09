@@ -4,12 +4,32 @@
   if (window.__allDaysEliteMakeoverLoaded) return;
   window.__allDaysEliteMakeoverLoaded = true;
 
+  let suppressNextQuickTileClickUntil = 0;
+  let reopenFullWeekModalAfterSave = false;
+
   function addStyle() {
     if (document.getElementById('allDaysEliteStyles')) return;
 
     const style = document.createElement('style');
     style.id = 'allDaysEliteStyles';
     style.textContent = `
+      #allDaysQuickMini .all-days-mini-day {
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        transition: transform .16s ease, filter .16s ease, border-color .16s ease, box-shadow .16s ease;
+      }
+
+      #allDaysQuickMini .all-days-mini-day:hover,
+      #allDaysQuickMini .all-days-mini-day:focus {
+        transform: translateY(-2px);
+        filter: brightness(1.12);
+        border-color: rgba(191, 219, 254, .58) !important;
+        box-shadow: 0 0 18px rgba(37, 99, 235, .26);
+        outline: none;
+      }
+
       #allDaysQuickModalBackdrop {
         background:
           radial-gradient(circle at 50% 10%, rgba(96, 165, 250, .24), transparent 34%),
@@ -35,17 +55,6 @@
           inset 0 1px 0 rgba(255, 255, 255, .12) !important;
       }
 
-      #allDaysQuickModalBackdrop .all-days-modal::before {
-        content: '';
-        position: absolute;
-        inset: -2px;
-        pointer-events: none;
-        background:
-          linear-gradient(120deg, transparent 0%, rgba(147, 197, 253, .16) 36%, transparent 66%),
-          radial-gradient(circle at 50% -10%, rgba(255, 255, 255, .14), transparent 30%);
-        animation: allDaysEliteGlow 5s ease-in-out infinite;
-      }
-
       #allDaysQuickModalBackdrop .modal-head,
       #allDaysQuickModalBackdrop .all-days-modal-note {
         position: relative;
@@ -66,9 +75,7 @@
         color: #f8fafc;
         font-weight: 1000;
         font-size: 1.25rem;
-        text-shadow:
-          0 0 16px rgba(96, 165, 250, .78),
-          0 0 32px rgba(37, 99, 235, .38);
+        text-shadow: 0 0 16px rgba(96, 165, 250, .78), 0 0 32px rgba(37, 99, 235, .38);
       }
 
       #closeAllDaysQuickModalBtn {
@@ -113,51 +120,7 @@
         transform: translateY(-3px);
         filter: brightness(1.1) saturate(1.08);
         border-color: rgba(191, 219, 254, .58) !important;
-        box-shadow:
-          0 20px 42px rgba(0, 0, 0, .36),
-          0 0 28px rgba(37, 99, 235, .24),
-          inset 0 1px 0 rgba(255, 255, 255, .12) !important;
         outline: none;
-      }
-
-      #allDaysQuickModalGrid .tile.active {
-        border-color: rgba(34, 197, 94, .54) !important;
-        background:
-          radial-gradient(circle at 16% 0%, rgba(34, 197, 94, .20), transparent 42%),
-          linear-gradient(180deg, rgba(20, 83, 45, .38), rgba(2, 6, 23, .84)) !important;
-      }
-
-      #allDaysQuickModalGrid .tile.rest {
-        border-color: rgba(248, 113, 113, .34) !important;
-        background:
-          radial-gradient(circle at 16% 0%, rgba(248, 113, 113, .14), transparent 42%),
-          linear-gradient(180deg, rgba(127, 29, 29, .24), rgba(2, 6, 23, .84)) !important;
-      }
-
-      #allDaysQuickModalGrid .tile.today {
-        outline: 1px solid rgba(96, 165, 250, .82) !important;
-        box-shadow:
-          0 0 0 1px rgba(96, 165, 250, .24),
-          0 0 28px rgba(96, 165, 250, .24),
-          inset 0 1px 0 rgba(255, 255, 255, .08) !important;
-      }
-
-      #allDaysQuickModalGrid .day-pay {
-        box-shadow:
-          0 0 16px rgba(34, 197, 94, .30),
-          0 0 34px rgba(34, 197, 94, .16),
-          inset 0 1px 0 rgba(255, 255, 255, .12) !important;
-      }
-
-      @keyframes allDaysEliteGlow {
-        0%, 100% {
-          opacity: .55;
-          transform: translateX(-2%);
-        }
-        50% {
-          opacity: 1;
-          transform: translateX(2%);
-        }
       }
 
       @media (max-width: 680px) {
@@ -181,8 +144,139 @@
     document.head.appendChild(style);
   }
 
+  function decorateQuickViewDays() {
+    const days = document.querySelectorAll('#allDaysQuickMini .all-days-mini-day');
+
+    days.forEach((day, index) => {
+      day.dataset.quickDayIndex = String(index);
+      day.setAttribute('role', 'button');
+      day.setAttribute('tabindex', '0');
+      day.setAttribute('title', `Open ${day.querySelector('strong')?.textContent || 'day'} editor`);
+      day.setAttribute('aria-label', `Open ${day.querySelector('strong')?.textContent || 'day'} editor`);
+    });
+  }
+
+  function openFullWeekModal() {
+    const quickTile = document.getElementById('allDaysQuickTile');
+    if (!quickTile) return;
+
+    window.__eliteAllowNextProtectedClick = true;
+    quickTile.click();
+
+    setTimeout(() => {
+      window.__eliteAllowNextProtectedClick = false;
+    }, 120);
+  }
+
+  function openQuickViewDay(index) {
+    if (!Number.isInteger(index) || index < 0 || index > 6) return;
+
+    reopenFullWeekModalAfterSave = true;
+
+    const modal = document.getElementById('allDaysQuickModalBackdrop');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    if (typeof openDayModal === 'function') {
+      openDayModal(index);
+      return;
+    }
+
+    const sourceTile = document.querySelectorAll('#grid .tile')[index];
+    if (sourceTile) sourceTile.click();
+  }
+
+  function handleMiniDayActivation(event) {
+    const miniDay = event.target.closest?.('#allDaysQuickMini .all-days-mini-day');
+    if (!miniDay) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    suppressNextQuickTileClickUntil = Date.now() + 700;
+    openQuickViewDay(Number(miniDay.dataset.quickDayIndex));
+  }
+
+  function handleDaySaveReturn() {
+    if (!reopenFullWeekModalAfterSave) return;
+
+    setTimeout(() => {
+      const dayModal = document.getElementById('dayModalBackdrop');
+      const dayStillOpen = dayModal?.classList.contains('open');
+
+      if (dayStillOpen) return;
+
+      reopenFullWeekModalAfterSave = false;
+      openFullWeekModal();
+    }, 180);
+  }
+
+  function bindQuickViewDayClicks() {
+    if (window.__quickViewIndividualDayClicksBound) return;
+    window.__quickViewIndividualDayClicksBound = true;
+
+    document.addEventListener('pointerdown', handleMiniDayActivation, true);
+    document.addEventListener('touchstart', handleMiniDayActivation, true);
+
+    document.addEventListener('click', event => {
+      const miniDay = event.target.closest?.('#allDaysQuickMini .all-days-mini-day');
+
+      if (miniDay) {
+        handleMiniDayActivation(event);
+        return;
+      }
+
+      if (event.target.closest?.('#saveEditBtn')) {
+        handleDaySaveReturn();
+        return;
+      }
+
+      if (event.target.closest?.('#cancelEditBtn, #closeModalBtn')) {
+        reopenFullWeekModalAfterSave = false;
+        return;
+      }
+
+      const quickTile = event.target.closest?.('#allDaysQuickTile');
+      if (quickTile && Date.now() < suppressNextQuickTileClickUntil) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+      }
+    }, true);
+
+    document.addEventListener('keydown', event => {
+      const miniDay = event.target.closest?.('#allDaysQuickMini .all-days-mini-day');
+      if (!miniDay || (event.key !== 'Enter' && event.key !== ' ')) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      suppressNextQuickTileClickUntil = Date.now() + 700;
+      openQuickViewDay(Number(miniDay.dataset.quickDayIndex));
+    }, true);
+  }
+
+  function observeQuickViewMiniGrid() {
+    if (window.__quickViewMiniObserverBound) return;
+    window.__quickViewMiniObserverBound = true;
+
+    const observer = new MutationObserver(() => decorateQuickViewDays());
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
   function init() {
     addStyle();
+    bindQuickViewDayClicks();
+    observeQuickViewMiniGrid();
+    decorateQuickViewDays();
+
+    setTimeout(decorateQuickViewDays, 100);
+    setTimeout(decorateQuickViewDays, 350);
+    setTimeout(decorateQuickViewDays, 900);
   }
 
   if (document.readyState === 'loading') {
