@@ -35,7 +35,7 @@ body {
     radial-gradient(circle at top, rgba(var(--bg-top), 0.18), transparent 42%),
     radial-gradient(circle at bottom, rgba(var(--bg-bottom), 0.14), transparent 48%),
     linear-gradient(135deg, rgba(var(--bg-top), 0.12), rgba(var(--bg-bottom), 0.22)),
-    url("https://uploads.onecompiler.io/44uengjdp/44uhce5ff/Design%2034_upscale.jpg") center/cover no-repeat;
+    url("https://uploads.onecompiler.io/44uengjdp/44ujj4brz/image_1783623026189.png") center/cover no-repeat;
   background-blend-mode: screen, screen, normal, normal;
 }
 
